@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from '@/components/ui/card'
 import {
   DollarSign,
@@ -13,16 +15,15 @@ import {
   TrendingUp,
   UserX,
   PartyPopper,
+  CheckCircle,
 } from 'lucide-react'
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   ResponsiveContainer,
   Tooltip,
-  LineChart,
-  Line,
   Legend,
 } from 'recharts'
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
@@ -38,6 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useToast } from '@/hooks/use-toast'
 
 const salesData = [
   { month: 'Jan', Vendas: 4250 },
@@ -53,28 +55,75 @@ const salesData = [
 ]
 
 const AdminDashboard = () => {
+  const [showConclusion, setShowConclusion] = useState(true)
+  const { toast } = useToast()
+
   const conclusionDate = new Date().toLocaleDateString('pt-BR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
 
+  const features = [
+    'Programa de Fidelidade Avançado',
+    'Expansão para Novos Canais de Venda (Pedidos via WhatsApp)',
+    'Ferramentas de Análise Preditiva (Dashboard)',
+    'Personalização em Tempo Real (Banners Dinâmicos)',
+    'Integração com Marketplaces',
+    'Melhorias na Experiência do Usuário (UX)',
+    'Ferramentas de Marketing Avançadas (Email e Afiliados)',
+    'Otimização de Performance',
+  ]
+
+  const handleAcknowledge = () => {
+    setShowConclusion(false)
+    toast({
+      title: 'Projeto Formalmente Concluído!',
+      description: 'Obrigado por confirmar a entrega. O projeto foi arquivado.',
+    })
+  }
+
   return (
     <div className="flex-1 space-y-6">
-      <Card className="mb-6 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
-        <CardHeader className="flex flex-row items-center gap-4">
-          <PartyPopper className="h-8 w-8 text-green-600 dark:text-green-400" />
-          <div>
-            <CardTitle className="text-green-800 dark:text-green-200">
-              Projeto Concluído!
-            </CardTitle>
-            <CardDescription className="text-green-700 dark:text-green-300">
-              A implementação inicial do projeto Condimentos Batista foi
-              finalizada com sucesso em {conclusionDate}.
-            </CardDescription>
-          </div>
-        </CardHeader>
-      </Card>
+      {showConclusion && (
+        <Card className="mb-6 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+          <CardHeader className="flex flex-row items-center gap-4">
+            <PartyPopper className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div>
+              <CardTitle className="text-green-800 dark:text-green-200">
+                Projeto Concluído!
+              </CardTitle>
+              <CardDescription className="text-green-700 dark:text-green-300">
+                A implementação do projeto Condimentos Batista foi finalizada
+                com sucesso em {conclusionDate}.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="font-semibold mb-4 text-green-800 dark:text-green-200">
+              Todas as funcionalidades acordadas foram entregues, incluindo:
+            </p>
+            <ul className="space-y-2">
+              {features.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-green-700 dark:text-green-300">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button
+              onClick={handleAcknowledge}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              Confirmar Entrega e Arquivar Projeto
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
 
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
