@@ -15,6 +15,8 @@ import OrderConfirmation from './pages/OrderConfirmation'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import AdminLogin from './pages/admin/Login'
+import AdminForgotPassword from './pages/admin/ForgotPassword'
+import AdminResetPassword from './pages/admin/ResetPassword'
 import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
@@ -46,6 +48,14 @@ const App = () => (
             </Route>
 
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/forgot-password"
+              element={<AdminForgotPassword />}
+            />
+            <Route
+              path="/admin/reset-password"
+              element={<AdminResetPassword />}
+            />
             <Route element={<AdminLayout />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />

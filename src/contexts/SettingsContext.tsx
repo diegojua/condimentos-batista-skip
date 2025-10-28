@@ -12,10 +12,16 @@ export interface PaymentMethodSettings {
   apiKey: string
 }
 
+export interface TwoFactorAuthSettings {
+  enabled: boolean
+  secret: string // This would be generated on the backend
+}
+
 export interface Settings {
   creditCard: PaymentMethodSettings
   pix: PaymentMethodSettings
   boleto: PaymentMethodSettings
+  twoFactorAuth: TwoFactorAuthSettings
 }
 
 interface SettingsContextType {
@@ -40,6 +46,10 @@ const initialSettings: Settings = {
     enabled: false,
     apiKey: 'mock_boleto_integration_key',
   },
+  twoFactorAuth: {
+    enabled: false,
+    secret: 'JBSWY3DPEHPK3PXP', // Mock secret for QR code generation
+  },
 }
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
@@ -49,6 +59,23 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     setSettings((prevSettings) => ({
       ...prevSettings,
       ...newSettings,
+      // Deep merge for nested objects
+      creditCard: {
+        ...prevSettings.creditCard,
+        ...newSettings.creditCard,
+      },
+      pix: {
+        ...prevSettings.pix,
+        ...newSettings.pix,
+      },
+      boleto: {
+        ...prevSettings.boleto,
+        ...newSettings.boleto,
+      },
+      twoFactorAuth: {
+        ...prevSettings.twoFactorAuth,
+        ...newSettings.twoFactorAuth,
+      },
     }))
   }, [])
 
