@@ -8,7 +8,6 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import {
   Card,
   CardContent,
@@ -19,7 +18,6 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { useSettings, Settings } from '@/contexts/SettingsContext'
 import { toast } from '@/hooks/use-toast'
-import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { TwoFactorAuthSetup } from '@/components/admin/TwoFactorAuthSetup'
 import { useState } from 'react'
@@ -30,26 +28,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 
 const AdminSettings = () => {
   const { settings, updateSettings } = useSettings()
   const [is2faDialogOpen, setIs2faDialogOpen] = useState(false)
   const form = useForm<Settings>({
     defaultValues: settings,
+    values: settings,
   })
 
   const onSubmit = (data: Settings) => {
-    const settingsToUpdate = { ...data }
-    settingsToUpdate.twoFactorAuth.enabled = settings.twoFactorAuth.enabled
-    updateSettings(settingsToUpdate)
+    updateSettings(data)
     toast({
       title: 'Configurações salvas!',
       description: 'Suas configurações foram atualizadas.',
     })
   }
 
+  const handleRuleToggle = (ruleId: string, enabled: boolean) => {
+    const updatedRules = settings.personalization.rules.map((rule) =>
+      rule.id === ruleId ? { ...rule, enabled } : rule,
+    )
+    updateSettings({ personalization: { rules: updatedRules } })
+  }
+
   const handleDisable2FA = () => {
-    updateSettings({ twoFactorAuth: { enabled: false } })
+    updateSettings({
+      twoFactorAuth: { ...settings.twoFactorAuth, enabled: false },
+    })
     toast({
       variant: 'destructive',
       title: 'Autenticação de Dois Fatores Desativada',
@@ -103,18 +110,50 @@ const AdminSettings = () => {
 
           <Card>
             <CardHeader>
+              <CardTitle>Motor de Personalização</CardTitle>
+              <CardDescriptionComponent>
+                Ative ou desative regras de personalização em tempo real.
+              </CardDescriptionComponent>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {settings.personalization.rules.map((rule) => (
+                <div
+                  key={rule.id}
+                  className="flex flex-row items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="space-y-0.5">
+                    <Label className="text-base">{rule.name}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {rule.type === 'timeOfDay'
+                        ? 'Baseado na hora do dia'
+                        : 'Baseado na localização'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={rule.enabled}
+                    onCheckedChange={(checked) =>
+                      handleRuleToggle(rule.id, checked)
+                    }
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Recomendações de Produtos</CardTitle>
             </CardHeader>
             <CardContent>
               <FormField
                 control={form.control}
-                name={'recommendationAlgorithm' as any}
+                name="recommendationAlgorithm"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Algoritmo de Recomendação</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={'related'}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>

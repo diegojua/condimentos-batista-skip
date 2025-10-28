@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   Carousel,
   CarouselContent,
@@ -13,6 +12,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { mockProducts, mockCategories } from '@/lib/mock-data'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
+import { usePersonalization } from '@/contexts/PersonalizationContext'
 
 const AnimatedSection = ({
   children,
@@ -39,6 +39,8 @@ const AnimatedSection = ({
 }
 
 const Index = () => {
+  const { activeBanner } = usePersonalization()
+
   const heroSlides = [
     {
       title: 'Sabores que Inspiram',
@@ -58,6 +60,29 @@ const Index = () => {
       link: '/produtos?category=pimentas',
     },
   ]
+
+  const PersonalizedBanner = () => {
+    if (!activeBanner) return null
+
+    return (
+      <AnimatedSection>
+        <section className="container">
+          <div className="relative rounded-lg overflow-hidden">
+            <img
+              src={activeBanner.bannerImage}
+              alt={activeBanner.bannerText}
+              className="w-full h-64 object-cover"
+            />
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
+              <h2 className="text-3xl font-bold text-white text-center max-w-3xl">
+                {activeBanner.bannerText}
+              </h2>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+    )
+  }
 
   return (
     <div className="space-y-16 md:space-y-24 pb-16">
@@ -101,6 +126,8 @@ const Index = () => {
           <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
         </Carousel>
       </section>
+
+      <PersonalizedBanner />
 
       <AnimatedSection>
         <section className="container">
@@ -166,6 +193,34 @@ const Index = () => {
                 alt="Ingredientes frescos"
                 className="rounded-lg shadow-lg"
               />
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      <AnimatedSection>
+        <section className="bg-background py-16">
+          <div className="container text-center">
+            <h2 className="text-3xl font-bold mb-4">Baixe nosso App!</h2>
+            <p className="max-w-2xl mx-auto text-muted-foreground mb-8">
+              Compre de forma mais rápida e fácil, e tenha acesso a promoções
+              exclusivas no nosso aplicativo.
+            </p>
+            <div className="flex justify-center gap-4">
+              <a href="#" aria-label="Download on the App Store">
+                <img
+                  src="https://img.usecurling.com/p/180/60?q=app%20store%20badge"
+                  alt="App Store"
+                  className="h-12"
+                />
+              </a>
+              <a href="#" aria-label="Get it on Google Play">
+                <img
+                  src="https://img.usecurling.com/p/180/60?q=google%20play%20badge"
+                  alt="Google Play"
+                  className="h-12"
+                />
+              </a>
             </div>
           </div>
         </section>

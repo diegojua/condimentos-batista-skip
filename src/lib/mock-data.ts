@@ -9,6 +9,7 @@ import {
   Affiliate,
   Marketplace,
   SupportTicket,
+  PredictiveData,
 } from '@/types'
 
 export const mockCategories: Category[] = [
@@ -273,3 +274,30 @@ export const mockTickets: SupportTicket[] = [
     priority: 'high',
   },
 ]
+
+export const mockPredictiveData: PredictiveData = {
+  salesForecast: [
+    { month: 'Ago', predicted: 8500 },
+    { month: 'Set', predicted: 9200 },
+    { month: 'Out', predicted: 8800 },
+  ],
+  churnRisk: {
+    high: 15, // percentage
+    medium: 35,
+    low: 50,
+  },
+  stockRecommendations: [
+    {
+      productId: '1',
+      productName: 'Pimenta Calabresa',
+      recommendation: 'Aumentar estoque em 20%',
+      reason: 'Aumento de demanda previsto',
+    },
+    {
+      productId: '3',
+      productName: 'Molho Barbecue',
+      recommendation: 'Manter estoque atual',
+      reason: 'Demanda estável',
+    },
+  ],
+}

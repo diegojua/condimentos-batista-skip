@@ -58,9 +58,18 @@ export interface Order {
   source?: string // e.g., 'Website', 'Amazon'
 }
 
+export interface LoyaltyTier {
+  name: 'Bronze' | 'Silver' | 'Gold'
+  points: number
+  multiplier: number
+  benefits: string[]
+}
+
 export interface LoyaltyInfo {
   points: number
-  tier: 'Bronze' | 'Silver' | 'Gold'
+  tier: LoyaltyTier['name']
+  tierProgress: number // Percentage to next tier
+  badges: string[] // Names of earned badges
 }
 
 export interface Customer {
@@ -98,11 +107,17 @@ export interface LoyaltySettings {
   enabled: boolean
   pointsPerDollar: number
   tiers: {
-    bronze: { points: number; multiplier: number }
-    silver: { points: number; multiplier: number }
-    gold: { points: number; multiplier: number }
+    bronze: LoyaltyTier
+    silver: LoyaltyTier
+    gold: LoyaltyTier
   }
   rewards: LoyaltyReward[]
+  challenges: {
+    id: string
+    name: string
+    description: string
+    points: number
+  }[]
 }
 
 export interface EmailCampaign {
@@ -153,4 +168,30 @@ export interface SupportTicket {
   date: string
   status: 'open' | 'in-progress' | 'closed'
   priority: 'low' | 'medium' | 'high'
+}
+
+export interface PersonalizationRule {
+  id: string
+  type: 'location' | 'timeOfDay' | 'event'
+  name: string
+  enabled: boolean
+  config: {
+    location?: string // e.g., 'São Paulo'
+    timeStart?: number // hour
+    timeEnd?: number // hour
+    eventName?: string
+    bannerImage: string
+    bannerText: string
+  }
+}
+
+export interface PredictiveData {
+  salesForecast: { month: string; predicted: number }[]
+  churnRisk: { high: number; medium: number; low: number }
+  stockRecommendations: {
+    productId: string
+    productName: string
+    recommendation: string
+    reason: string
+  }[]
 }

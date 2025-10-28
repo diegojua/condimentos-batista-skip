@@ -7,11 +7,12 @@ import {
 } from '@/components/ui/card'
 import {
   DollarSign,
-  Package,
   ShoppingCart,
-  Users,
   Activity,
+  Users,
   Download,
+  TrendingUp,
+  UserX,
 } from 'lucide-react'
 import {
   BarChart,
@@ -22,11 +23,11 @@ import {
   Tooltip,
   LineChart,
   Line,
+  Legend,
 } from 'recharts'
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { DateRangePicker } from '@/components/admin/DateRangePicker'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { mockOrders, mockProducts } from '@/lib/mock-data'
+import { mockPredictiveData } from '@/lib/mock-data'
 import { StatCard } from '@/components/admin/StatCard'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,13 +40,16 @@ import {
 } from '@/components/ui/table'
 
 const salesData = [
-  { month: 'Jan', total: 4250 },
-  { month: 'Fev', total: 3800 },
-  { month: 'Mar', total: 6100 },
-  { month: 'Abr', total: 5500 },
-  { month: 'Mai', total: 7200 },
-  { month: 'Jun', total: 6800 },
-  { month: 'Jul', total: 8100 },
+  { month: 'Jan', Vendas: 4250 },
+  { month: 'Fev', Vendas: 3800 },
+  { month: 'Mar', Vendas: 6100 },
+  { month: 'Abr', Vendas: 5500 },
+  { month: 'Mai', Vendas: 7200 },
+  { month: 'Jun', Vendas: 6800 },
+  { month: 'Jul', Vendas: 8100, Previsão: 8100 },
+  { month: 'Ago', Previsão: 8500 },
+  { month: 'Set', Previsão: 9200 },
+  { month: 'Out', Previsão: 8800 },
 ]
 
 const AdminDashboard = () => {
@@ -85,19 +89,16 @@ const AdminDashboard = () => {
         <Card className="col-span-4">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Visão Geral de Vendas</CardTitle>
+              <CardTitle>Vendas e Previsões</CardTitle>
               <CardDescription>
-                Receita total nos últimos 7 meses.
+                Receita dos últimos meses e previsão para os próximos.
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" /> Exportar
-            </Button>
           </CardHeader>
           <CardContent className="pl-2">
             <ChartContainer config={{}} className="h-[300px] w-full">
               <ResponsiveContainer>
-                <BarChart data={salesData}>
+                <LineChart data={salesData}>
                   <XAxis
                     dataKey="month"
                     stroke="#888888"
@@ -112,54 +113,85 @@ const AdminDashboard = () => {
                     axisLine={false}
                     tickFormatter={(value) => `R$${value / 1000}k`}
                   />
-                  <Tooltip
-                    cursor={{ fill: 'hsl(var(--muted))' }}
-                    content={<ChartTooltipContent />}
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="Vendas"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
                   />
-                  <Bar
-                    dataKey="total"
-                    fill="hsl(var(--primary))"
-                    radius={[4, 4, 0, 0]}
+                  <Line
+                    type="monotone"
+                    dataKey="Previsão"
+                    stroke="hsl(var(--primary))"
+                    strokeDasharray="5 5"
                   />
-                </BarChart>
+                </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Produtos Mais Vendidos</CardTitle>
-            <CardDescription>
-              Os produtos mais populares da sua loja.
-            </CardDescription>
+            <CardTitle>Insights Preditivos</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Produto</TableHead>
-                  <TableHead className="text-right">Vendas</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockProducts
-                  .slice(0, 5)
-                  .sort((a, b) => b.reviewCount - a.reviewCount)
-                  .map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell className="font-medium">
-                        {product.name}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {product.reviewCount * 5 + 20}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+          <CardContent className="space-y-4">
+            <div className="flex items-center">
+              <UserX className="h-6 w-6 mr-4 text-destructive" />
+              <div>
+                <p className="font-semibold">Risco de Churn</p>
+                <p className="text-sm text-muted-foreground">
+                  {mockPredictiveData.churnRisk.high}% dos clientes em alto
+                  risco.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <TrendingUp className="h-6 w-6 mr-4 text-success" />
+              <div>
+                <p className="font-semibold">Próximo Mês</p>
+                <p className="text-sm text-muted-foreground">
+                  Previsão de vendas de R${' '}
+                  {mockPredictiveData.salesForecast[0].predicted.toFixed(2)}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recomendações de Estoque</CardTitle>
+          <CardDescription>
+            Otimizações proativas baseadas em previsões de demanda.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Produto</TableHead>
+                <TableHead>Recomendação</TableHead>
+                <TableHead>Motivo</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockPredictiveData.stockRecommendations.map((rec) => (
+                <TableRow key={rec.productId}>
+                  <TableCell className="font-medium">
+                    {rec.productName}
+                  </TableCell>
+                  <TableCell className="text-green-600 font-semibold">
+                    {rec.recommendation}
+                  </TableCell>
+                  <TableCell>{rec.reason}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }

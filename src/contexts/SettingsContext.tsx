@@ -6,7 +6,7 @@ import {
   useMemo,
   useCallback,
 } from 'react'
-import { LoyaltySettings } from '@/types'
+import { LoyaltySettings, PersonalizationRule } from '@/types'
 
 export interface PaymentMethodSettings {
   enabled: boolean
@@ -24,6 +24,10 @@ export interface Settings {
   boleto: PaymentMethodSettings
   twoFactorAuth: TwoFactorAuthSettings
   loyalty: LoyaltySettings
+  personalization: {
+    rules: PersonalizationRule[]
+  }
+  recommendationAlgorithm: 'related' | 'bought-together' | 'viewed-also-viewed'
 }
 
 interface SettingsContextType {
@@ -56,9 +60,27 @@ const initialSettings: Settings = {
     enabled: true,
     pointsPerDollar: 10,
     tiers: {
-      bronze: { points: 0, multiplier: 1 },
-      silver: { points: 5000, multiplier: 1.2 },
-      gold: { points: 15000, multiplier: 1.5 },
+      bronze: {
+        name: 'Bronze',
+        points: 0,
+        multiplier: 1,
+        benefits: ['Acesso a promoções básicas'],
+      },
+      silver: {
+        name: 'Silver',
+        points: 5000,
+        multiplier: 1.2,
+        benefits: [
+          'Frete grátis em pedidos acima de R$100',
+          'Descontos exclusivos',
+        ],
+      },
+      gold: {
+        name: 'Gold',
+        points: 15000,
+        multiplier: 1.5,
+        benefits: ['Atendimento prioritário', 'Brindes especiais'],
+      },
     },
     rewards: [
       {
@@ -74,43 +96,93 @@ const initialSettings: Settings = {
         discountFixed: 10,
       },
     ],
+    challenges: [
+      {
+        id: 'c1',
+        name: 'Primeira Compra',
+        description: 'Faça sua primeira compra e ganhe 100 pontos.',
+        points: 100,
+      },
+      {
+        id: 'c2',
+        name: 'Explorador de Sabores',
+        description: 'Compre produtos de 3 categorias diferentes.',
+        points: 250,
+      },
+    ],
   },
+  personalization: {
+    rules: [
+      {
+        id: 'time-morning',
+        type: 'timeOfDay',
+        name: 'Promoção Matinal',
+        enabled: true,
+        config: {
+          timeStart: 6,
+          timeEnd: 11,
+          bannerImage:
+            'https://img.usecurling.com/p/1200/400?q=morning%20coffee%20spices',
+          bannerText:
+            'Comece o dia com mais sabor! Confira nossas ofertas matinais.',
+        },
+      },
+      {
+        id: 'location-sp',
+        type: 'location',
+        name: 'Frete Grátis SP',
+        enabled: true,
+        config: {
+          location: 'São Paulo',
+          bannerImage:
+            'https://img.usecurling.com/p/1200/400?q=sao%20paulo%20skyline',
+          bannerText:
+            'Notícia boa para os paulistanos: Frete grátis para todo o estado de SP!',
+        },
+      },
+    ],
+  },
+  recommendationAlgorithm: 'related',
 }
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<Settings>(initialSettings)
 
   const updateSettings = useCallback((newSettings: Partial<Settings>) => {
-    setSettings((prevSettings) => ({
-      ...prevSettings,
-      ...newSettings,
-      // Deep merge for nested objects
-      creditCard: {
-        ...prevSettings.creditCard,
-        ...newSettings.creditCard,
-      },
-      pix: {
-        ...prevSettings.pix,
-        ...newSettings.pix,
-      },
-      boleto: {
-        ...prevSettings.boleto,
-        ...newSettings.boleto,
-      },
-      twoFactorAuth: {
-        ...prevSettings.twoFactorAuth,
-        ...newSettings.twoFactorAuth,
-      },
-      loyalty: {
-        ...prevSettings.loyalty,
-        ...newSettings.loyalty,
-        tiers: {
-          ...prevSettings.loyalty.tiers,
-          ...newSettings.loyalty?.tiers,
-        },
-        rewards: newSettings.loyalty?.rewards || prevSettings.loyalty.rewards,
-      },
-    }))
+    setSettings((prevSettings) => {
+      const updated = { ...prevSettings, ...newSettings }
+      if (newSettings.creditCard)
+        updated.creditCard = {
+          ...prevSettings.creditCard,
+          ...newSettings.creditCard,
+        }
+      if (newSettings.pix)
+        updated.pix = { ...prevSettings.pix, ...newSettings.pix }
+      if (newSettings.boleto)
+        updated.boleto = { ...prevSettings.boleto, ...newSettings.boleto }
+      if (newSettings.twoFactorAuth)
+        updated.twoFactorAuth = {
+          ...prevSettings.twoFactorAuth,
+          ...newSettings.twoFactorAuth,
+        }
+      if (newSettings.loyalty) {
+        updated.loyalty = {
+          ...prevSettings.loyalty,
+          ...newSettings.loyalty,
+          tiers: {
+            ...prevSettings.loyalty.tiers,
+            ...newSettings.loyalty.tiers,
+          },
+        }
+      }
+      if (newSettings.personalization) {
+        updated.personalization = {
+          ...prevSettings.personalization,
+          ...newSettings.personalization,
+        }
+      }
+      return updated
+    })
   }, [])
 
   const value = useMemo(
