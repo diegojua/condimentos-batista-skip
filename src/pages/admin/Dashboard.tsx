@@ -10,9 +10,9 @@ import {
   ShoppingCart,
   Activity,
   Users,
-  Download,
   TrendingUp,
   UserX,
+  PartyPopper,
 } from 'lucide-react'
 import {
   BarChart,
@@ -53,8 +53,29 @@ const salesData = [
 ]
 
 const AdminDashboard = () => {
+  const conclusionDate = new Date().toLocaleDateString('pt-BR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+
   return (
     <div className="flex-1 space-y-6">
+      <Card className="mb-6 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+        <CardHeader className="flex flex-row items-center gap-4">
+          <PartyPopper className="h-8 w-8 text-green-600 dark:text-green-400" />
+          <div>
+            <CardTitle className="text-green-800 dark:text-green-200">
+              Projeto Concluído!
+            </CardTitle>
+            <CardDescription className="text-green-700 dark:text-green-300">
+              A implementação inicial do projeto Condimentos Batista foi
+              finalizada com sucesso em {conclusionDate}.
+            </CardDescription>
+          </div>
+        </CardHeader>
+      </Card>
+
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <DateRangePicker />
