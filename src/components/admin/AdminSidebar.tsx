@@ -7,7 +7,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, Package, ShoppingCart, Users } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  Settings,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const menuItems = [
@@ -31,6 +37,11 @@ const menuItems = [
     label: 'Clientes',
     icon: Users,
   },
+  {
+    href: '/admin/settings',
+    label: 'Configurações',
+    icon: Settings,
+  },
 ]
 
 export const AdminSidebar = () => {
@@ -48,7 +59,8 @@ export const AdminSidebar = () => {
               <SidebarMenuButton
                 asChild
                 className={cn(
-                  location.pathname === item.href &&
+                  location.pathname.startsWith(item.href) &&
+                    item.href !== '/admin' &&
                     'bg-primary text-primary-foreground hover:bg-primary-hover hover:text-primary-foreground',
                 )}
               >

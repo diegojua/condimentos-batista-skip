@@ -1,9 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
 
 const OrderConfirmation = () => {
+  const location = useLocation()
+  const orderId = location.state?.orderId || '#123456'
+
   return (
     <div className="container py-16 flex items-center justify-center">
       <Card className="w-full max-w-2xl text-center p-8">
@@ -18,7 +21,7 @@ const OrderConfirmation = () => {
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
             O número do seu pedido é{' '}
-            <span className="font-bold text-primary">#123456</span>.
+            <span className="font-bold text-primary">{orderId}</span>.
           </p>
           <p className="text-muted-foreground">
             Você receberá um e-mail de confirmação em breve com todos os

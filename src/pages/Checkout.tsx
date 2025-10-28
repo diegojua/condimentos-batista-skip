@@ -15,35 +15,121 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCart } from '@/contexts/CartContext'
 import { useNavigate } from 'react-router-dom'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
+import { useSettings } from '@/contexts/SettingsContext'
+import { CreditCardForm } from '@/components/CreditCardForm'
+import { PixDisplay } from '@/components/PixDisplay'
+import { BoletoDisplay } from '@/components/BoletoDisplay'
+import { toast } from '@/hooks/use-toast'
 
-const checkoutSchema = z.object({
-  name: z.string().min(2, 'Nome inválido'),
-  email: z.string().email('Email inválido'),
-  phone: z.string().min(10, 'Telefone inválido'),
-  cep: z.string().length(8, 'CEP inválido'),
-  street: z.string().min(3, 'Rua inválida'),
-  number: z.string().min(1, 'Número inválido'),
-  complement: z.string().optional(),
-  neighborhood: z.string().min(2, 'Bairro inválido'),
-  city: z.string().min(2, 'Cidade inválida'),
-  state: z.string().length(2, 'Estado inválido'),
-  paymentMethod: z.enum(['credit-card', 'pix', 'boleto']),
-})
+const checkoutSchema = z
+  .object({
+    name: z.string().min(2, 'Nome inválido'),
+    email: z.string().email('Email inválido'),
+    phone: z.string().min(10, 'Telefone inválido'),
+    cep: z.string().length(8, 'CEP inválido'),
+    street: z.string().min(3, 'Rua inválida'),
+    number: z.string().min(1, 'Número inválido'),
+    complement: z.string().optional(),
+    neighborhood: z.string().min(2, 'Bairro inválido'),
+    city: z.string().min(2, 'Cidade inválida'),
+    state: z.string().length(2, 'Estado inválido'),
+    paymentMethod: z.enum(['credit-card', 'pix', 'boleto']),
+    cardNumber: z.string().optional(),
+    cardName: z.string().optional(),
+    cardExpiry: z.string().optional(),
+    cardCvc: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.paymentMethod === 'credit-card') {
+      if (!data.cardNumber || !/^\d{16}$/.test(data.cardNumber)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Número do cartão inválido',
+          path: ['cardNumber'],
+        })
+      }
+      if (!data.cardName || data.cardName.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Nome no cartão inválido',
+          path: ['cardName'],
+        })
+      }
+      if (
+        !data.cardExpiry ||
+        !/^(0[1-9]|1[0-2])\/\d{2}$/.test(data.cardExpiry)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Data de validade inválida (MM/AA)',
+          path: ['cardExpiry'],
+        })
+      }
+      if (!data.cardCvc || !/^\d{3,4}$/.test(data.cardCvc)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'CVC inválido',
+          path: ['cardCvc'],
+        })
+      }
+    }
+  })
+
+type CheckoutFormValues = z.infer<typeof checkoutSchema>
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart()
+  const { settings } = useSettings()
   const navigate = useNavigate()
-  const form = useForm<z.infer<typeof checkoutSchema>>({
+  const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: { paymentMethod: 'credit-card' },
   })
 
-  function onSubmit(values: z.infer<typeof checkoutSchema>) {
-    console.log(values)
+  const selectedPaymentMethod = form.watch('paymentMethod')
+
+  function onSubmit(values: CheckoutFormValues) {
+    // Simulate payment failure
+    if (
+      values.paymentMethod === 'credit-card' &&
+      values.cardNumber?.endsWith('1111')
+    ) {
+      toast({
+        variant: 'destructive',
+        title: 'Falha no Pagamento',
+        description:
+          'Seu cartão foi recusado. Por favor, verifique os dados ou tente outro método.',
+      })
+      form.setError('cardNumber', { message: 'Cartão recusado' })
+      return
+    }
+
+    const orderId = `#${Math.floor(100000 + Math.random() * 900000)}`
+    console.log('Pedido realizado:', { ...values, orderId })
     clearCart()
-    navigate('/confirmacao-pedido')
+    navigate('/confirmacao-pedido', { state: { orderId } })
   }
+
+  const paymentMethods = [
+    {
+      id: 'credit-card',
+      label: 'Cartão de Crédito',
+      enabled: settings.creditCard.enabled,
+      component: <CreditCardForm form={form} />,
+    },
+    {
+      id: 'pix',
+      label: 'Pix',
+      enabled: settings.pix.enabled,
+      component: <PixDisplay />,
+    },
+    {
+      id: 'boleto',
+      label: 'Boleto Bancário',
+      enabled: settings.boleto.enabled,
+      component: <BoletoDisplay />,
+    },
+  ].filter((method) => method.enabled)
 
   return (
     <div className="container py-12">
@@ -212,34 +298,29 @@ const Checkout = () => {
                             defaultValue={field.value}
                             className="flex flex-col space-y-1"
                           >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="credit-card" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Cartão de Crédito
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="pix" />
-                              </FormControl>
-                              <FormLabel className="font-normal">Pix</FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="boleto" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Boleto Bancário
-                              </FormLabel>
-                            </FormItem>
+                            {paymentMethods.map((method) => (
+                              <FormItem
+                                key={method.id}
+                                className="flex items-center space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <RadioGroupItem value={method.id} />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  {method.label}
+                                </FormLabel>
+                              </FormItem>
+                            ))}
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  {
+                    paymentMethods.find((m) => m.id === selectedPaymentMethod)
+                      ?.component
+                  }
                 </CardContent>
               </Card>
               <Button type="submit" size="lg" className="w-full btn-primary">
