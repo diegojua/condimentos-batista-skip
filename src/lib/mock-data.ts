@@ -1,4 +1,4 @@
-import { Product, Category, Review } from '@/types'
+import { Product, Category, Review, Order, Customer } from '@/types'
 
 export const mockCategories: Category[] = [
   {
@@ -111,7 +111,7 @@ export const mockProducts: Product[] = [
       'https://img.usecurling.com/p/600/600?q=dried%20herb%20blend',
     ],
     category: 'temperos-secos',
-    stock: 40,
+    stock: 0,
     rating: 4.8,
     reviewCount: 77,
   },
@@ -174,5 +174,78 @@ export const mockReviews: Review[] = [
     rating: 5,
     comment:
       'O melhor molho barbecue que já provei! Sabor autêntico e defumado. Comprarei sempre.',
+  },
+]
+
+export const mockOrders: Order[] = [
+  {
+    id: '#3102',
+    customerName: 'Ana Costa',
+    date: '2024-07-28',
+    total: 150.75,
+    status: 'Entregue',
+  },
+  {
+    id: '#3101',
+    customerName: 'Bruno Lima',
+    date: '2024-07-28',
+    total: 88.0,
+    status: 'Enviado',
+  },
+  {
+    id: '#3100',
+    customerName: 'Carla Dias',
+    date: '2024-07-27',
+    total: 210.5,
+    status: 'Processando',
+  },
+  {
+    id: '#3099',
+    customerName: 'Daniel Faria',
+    date: '2024-07-26',
+    total: 45.9,
+    status: 'Pendente',
+  },
+  {
+    id: '#3098',
+    customerName: 'Elisa Gomes',
+    date: '2024-07-25',
+    total: 320.0,
+    status: 'Cancelado',
+  },
+]
+
+export const mockCustomers: Customer[] = [
+  {
+    id: 'CUST01',
+    name: 'Ana Costa',
+    email: 'ana@example.com',
+    phone: '(11) 98765-4321',
+    totalOrders: 5,
+    totalSpent: 850.5,
+  },
+  {
+    id: 'CUST02',
+    name: 'Bruno Lima',
+    email: 'bruno@example.com',
+    phone: '(21) 91234-5678',
+    totalOrders: 3,
+    totalSpent: 430.0,
+  },
+  {
+    id: 'CUST03',
+    name: 'Carla Dias',
+    email: 'carla@example.com',
+    phone: '(31) 99999-8888',
+    totalOrders: 8,
+    totalSpent: 1250.75,
+  },
+  {
+    id: 'CUST04',
+    name: 'Daniel Faria',
+    email: 'daniel@example.com',
+    phone: '(41) 98888-7777',
+    totalOrders: 2,
+    totalSpent: 150.2,
   },
 ]

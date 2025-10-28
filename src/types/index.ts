@@ -29,3 +29,20 @@ export interface Review {
 export interface CartItem extends Product {
   quantity: number
 }
+
+export interface Order {
+  id: string
+  customerName: string
+  date: string
+  total: number
+  status: 'Pendente' | 'Processando' | 'Enviado' | 'Entregue' | 'Cancelado'
+}
+
+export interface Customer {
+  id: string
+  name: string
+  email: string
+  phone: string
+  totalOrders: number
+  totalSpent: number
+}

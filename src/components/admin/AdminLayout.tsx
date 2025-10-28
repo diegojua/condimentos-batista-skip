@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AdminSidebar } from './AdminSidebar'
 import { Button } from '../ui/button'
-import { Bell, User } from 'lucide-react'
+import { Bell } from 'lucide-react'
 
 const AdminHeader = () => (
   <header className="flex h-16 items-center justify-between border-b bg-background px-4 md:justify-end">
@@ -28,9 +28,6 @@ const AdminHeader = () => (
     <div className="flex items-center gap-4">
       <Button variant="ghost" size="icon">
         <Bell className="h-5 w-5" />
-      </Button>
-      <Button variant="ghost" size="icon">
-        <User className="h-5 w-5" />
       </Button>
     </div>
   </header>
