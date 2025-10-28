@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card'
 import { RecommendedProducts } from '@/components/RecommendedProducts'
 import { mockProducts } from '@/lib/mock-data'
+import { CheckoutProgress } from '@/components/CheckoutProgress'
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, cartTotal, cartCount } =
@@ -50,6 +51,7 @@ const Cart = () => {
   return (
     <>
       <div className="container py-12">
+        <CheckoutProgress currentStep={1} />
         <h1 className="text-3xl font-bold mb-8">Carrinho de Compras</h1>
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">

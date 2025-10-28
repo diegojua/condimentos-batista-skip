@@ -5,6 +5,7 @@ import { CheckCircle } from 'lucide-react'
 import { useLoyalty } from '@/contexts/LoyaltyContext'
 import { useSettings } from '@/contexts/SettingsContext'
 import { useEffect } from 'react'
+import { CheckoutProgress } from '@/components/CheckoutProgress'
 
 const OrderConfirmation = () => {
   const location = useLocation()
@@ -25,7 +26,8 @@ const OrderConfirmation = () => {
   }, [])
 
   return (
-    <div className="container py-16 flex items-center justify-center">
+    <div className="container py-16 flex flex-col items-center justify-center">
+      <CheckoutProgress currentStep={4} />
       <Card className="w-full max-w-2xl text-center p-8">
         <CardHeader>
           <div className="mx-auto bg-success text-white rounded-full h-16 w-16 flex items-center justify-center mb-4">

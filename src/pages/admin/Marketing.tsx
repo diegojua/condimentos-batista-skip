@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { mockCampaigns, mockAffiliates } from '@/lib/mock-data'
-import { PlusCircle, MoreHorizontal, BadgePercent } from 'lucide-react'
+import { PlusCircle, BadgePercent, Users, DollarSign } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { StatCard } from '@/components/admin/StatCard'
 

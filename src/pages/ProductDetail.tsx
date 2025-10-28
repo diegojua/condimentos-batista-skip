@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { mockProducts, mockReviews } from '@/lib/mock-data'
+import { mockProducts } from '@/lib/mock-data'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Star, Plus, Minus } from 'lucide-react'
-import { ProductCard } from '@/components/ProductCard'
 import { useCart } from '@/contexts/CartContext'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -91,9 +90,12 @@ const ProductDetail = () => {
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={
-                      i < Math.round(product.rating) ? 'fill-current' : ''
-                    }
+                    className={cn(
+                      'h-6 w-6',
+                      i < Math.round(product.rating)
+                        ? 'fill-yellow-500'
+                        : 'text-gray-300',
+                    )}
                   />
                 ))}
               </div>
@@ -116,14 +118,22 @@ const ProductDetail = () => {
                     onValueChange={(value) =>
                       handleVariationChange(variation.name, value)
                     }
+                    value={selectedVariations[variation.name]}
                   >
                     {Object.keys(variation.options).map((option) => (
-                      <RadioGroupItem
-                        key={option}
-                        value={option}
-                        id={`${variation.id}-${option}`}
-                        className="sr-only"
-                      />
+                      <div key={option}>
+                        <RadioGroupItem
+                          value={option}
+                          id={`${variation.id}-${option}`}
+                          className="sr-only"
+                        />
+                        <Label
+                          htmlFor={`${variation.id}-${option}`}
+                          className="cursor-pointer rounded-md border-2 border-muted bg-transparent px-4 py-2 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                        >
+                          {option}
+                        </Label>
+                      </div>
                     ))}
                   </RadioGroup>
                 </div>

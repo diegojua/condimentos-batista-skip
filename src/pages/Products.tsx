@@ -21,7 +21,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { Product } from '@/types'
+import { Star } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -55,7 +56,7 @@ const Products = () => {
         case 'price-asc':
           return priceA - priceB
         case 'price-desc':
-          return priceB - priceA
+          return priceB - a.price
         case 'rating':
           return b.rating - a.rating
         default:
@@ -118,8 +119,25 @@ const Products = () => {
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Avaliação</h4>
-              {/* Implementar filtro de avaliação */}
+              <h4 className="font-semibold mb-2">Avaliação Mínima</h4>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <Button
+                    key={rating}
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      setMinRating(rating === minRating ? 0 : rating)
+                    }
+                    className={cn(
+                      'text-gray-300',
+                      minRating >= rating && 'text-yellow-500',
+                    )}
+                  >
+                    <Star className="h-5 w-5 fill-current" />
+                  </Button>
+                ))}
+              </div>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
