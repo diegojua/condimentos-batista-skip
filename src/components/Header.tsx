@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react'
+import { Search, ShoppingCart, User, Menu, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -13,10 +13,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useLoyalty } from '@/contexts/LoyaltyContext'
 
 export const Header = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const { cartCount } = useCart()
+  const { points } = useLoyalty()
 
   const navLinks = [
     { name: 'Início', path: '/' },
@@ -91,7 +93,21 @@ export const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link to="/admin/login">Área Administrativa</Link>
+                <Link
+                  to="/fidelidade"
+                  className="flex justify-between w-full cursor-pointer"
+                >
+                  <span>Fidelidade</span>
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />{' '}
+                    {points}
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/admin/login" className="cursor-pointer">
+                  Área Administrativa
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

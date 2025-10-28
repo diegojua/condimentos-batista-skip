@@ -38,6 +38,11 @@ export interface Order {
   status: 'Pendente' | 'Processando' | 'Enviado' | 'Entregue' | 'Cancelado'
 }
 
+export interface LoyaltyInfo {
+  points: number
+  tier: 'Bronze' | 'Silver' | 'Gold'
+}
+
 export interface Customer {
   id: string
   name: string
@@ -45,6 +50,7 @@ export interface Customer {
   phone: string
   totalOrders: number
   totalSpent: number
+  loyalty?: LoyaltyInfo
 }
 
 export interface Promotion {
@@ -58,4 +64,23 @@ export interface Promotion {
   startDate: string
   endDate: string
   isActive: boolean
+}
+
+export interface LoyaltyReward {
+  id: string
+  name: string
+  pointsRequired: number
+  discountPercentage?: number
+  discountFixed?: number
+}
+
+export interface LoyaltySettings {
+  enabled: boolean
+  pointsPerDollar: number
+  tiers: {
+    bronze: { points: number; multiplier: number }
+    silver: { points: number; multiplier: number }
+    gold: { points: number; multiplier: number }
+  }
+  rewards: LoyaltyReward[]
 }

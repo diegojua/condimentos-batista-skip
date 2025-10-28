@@ -23,6 +23,15 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { TwoFactorAuthSetup } from '@/components/admin/TwoFactorAuthSetup'
 import { useState } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Trash2 } from 'lucide-react'
 
 const AdminSettings = () => {
   const { settings, updateSettings } = useSettings()
@@ -32,18 +41,16 @@ const AdminSettings = () => {
   })
 
   const onSubmit = (data: Settings) => {
-    // We don't update 2FA enabled status directly from form submission
     const settingsToUpdate = { ...data }
     settingsToUpdate.twoFactorAuth.enabled = settings.twoFactorAuth.enabled
     updateSettings(settingsToUpdate)
     toast({
       title: 'Configurações salvas!',
-      description: 'Suas configurações de pagamento foram atualizadas.',
+      description: 'Suas configurações foram atualizadas.',
     })
   }
 
   const handleDisable2FA = () => {
-    // In a real app, this would require password confirmation
     updateSettings({ twoFactorAuth: { enabled: false } })
     toast({
       variant: 'destructive',
@@ -110,6 +117,52 @@ const AdminSettings = () => {
                   </Dialog>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Programa de Fidelidade</CardTitle>
+              <CardDescriptionComponent>
+                Configure as regras para o programa de fidelidade.
+              </CardDescriptionComponent>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="loyalty.enabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        Ativar Programa
+                      </FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="loyalty.pointsPerDollar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pontos por R$ 1,00 Gasto</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        disabled={!form.watch('loyalty.enabled')}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 
@@ -212,7 +265,7 @@ const AdminSettings = () => {
           </Card>
 
           <Button type="submit" className="btn-primary">
-            Salvar Alterações de Pagamento
+            Salvar Alterações
           </Button>
         </form>
       </Form>

@@ -2,10 +2,27 @@ import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
+import { useLoyalty } from '@/contexts/LoyaltyContext'
+import { useSettings } from '@/contexts/SettingsContext'
+import { useEffect } from 'react'
 
 const OrderConfirmation = () => {
   const location = useLocation()
-  const orderId = location.state?.orderId || '#123456'
+  const { orderId, orderTotal } = location.state || {
+    orderId: '#123456',
+    orderTotal: 0,
+  }
+  const { addPoints } = useLoyalty()
+  const { settings } = useSettings()
+
+  const pointsEarned = Math.floor(orderTotal * settings.loyalty.pointsPerDollar)
+
+  useEffect(() => {
+    if (pointsEarned > 0) {
+      addPoints(pointsEarned)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="container py-16 flex items-center justify-center">
@@ -23,6 +40,13 @@ const OrderConfirmation = () => {
             O número do seu pedido é{' '}
             <span className="font-bold text-primary">{orderId}</span>.
           </p>
+          {pointsEarned > 0 && (
+            <p className="text-muted-foreground">
+              Você ganhou{' '}
+              <span className="font-bold text-primary">{pointsEarned}</span>{' '}
+              pontos de fidelidade com esta compra!
+            </p>
+          )}
           <p className="text-muted-foreground">
             Você receberá um e-mail de confirmação em breve com todos os
             detalhes da sua compra.

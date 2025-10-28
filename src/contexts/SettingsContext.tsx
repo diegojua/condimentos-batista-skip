@@ -6,6 +6,7 @@ import {
   useMemo,
   useCallback,
 } from 'react'
+import { LoyaltySettings } from '@/types'
 
 export interface PaymentMethodSettings {
   enabled: boolean
@@ -22,6 +23,7 @@ export interface Settings {
   pix: PaymentMethodSettings
   boleto: PaymentMethodSettings
   twoFactorAuth: TwoFactorAuthSettings
+  loyalty: LoyaltySettings
 }
 
 interface SettingsContextType {
@@ -50,6 +52,29 @@ const initialSettings: Settings = {
     enabled: false,
     secret: 'JBSWY3DPEHPK3PXP', // Mock secret for QR code generation
   },
+  loyalty: {
+    enabled: true,
+    pointsPerDollar: 10,
+    tiers: {
+      bronze: { points: 0, multiplier: 1 },
+      silver: { points: 5000, multiplier: 1.2 },
+      gold: { points: 15000, multiplier: 1.5 },
+    },
+    rewards: [
+      {
+        id: 'reward1',
+        name: '5% de Desconto',
+        pointsRequired: 1000,
+        discountPercentage: 5,
+      },
+      {
+        id: 'reward2',
+        name: 'R$ 10 de Desconto',
+        pointsRequired: 2000,
+        discountFixed: 10,
+      },
+    ],
+  },
 }
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
@@ -75,6 +100,15 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       twoFactorAuth: {
         ...prevSettings.twoFactorAuth,
         ...newSettings.twoFactorAuth,
+      },
+      loyalty: {
+        ...prevSettings.loyalty,
+        ...newSettings.loyalty,
+        tiers: {
+          ...prevSettings.loyalty.tiers,
+          ...newSettings.loyalty?.tiers,
+        },
+        rewards: newSettings.loyalty?.rewards || prevSettings.loyalty.rewards,
       },
     }))
   }, [])
