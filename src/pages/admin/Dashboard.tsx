@@ -6,6 +6,28 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { DollarSign, Package, ShoppingCart, Users } from 'lucide-react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts'
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
+import { DateRangePicker } from '@/components/admin/DateRangePicker'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { mockOrders } from '@/lib/mock-data'
+
+const salesData = [
+  { month: 'Jan', total: Math.floor(Math.random() * 5000) + 1000 },
+  { month: 'Fev', total: Math.floor(Math.random() * 5000) + 1000 },
+  { month: 'Mar', total: Math.floor(Math.random() * 5000) + 1000 },
+  { month: 'Abr', total: Math.floor(Math.random() * 5000) + 1000 },
+  { month: 'Mai', total: Math.floor(Math.random() * 5000) + 1000 },
+  { month: 'Jun', total: Math.floor(Math.random() * 5000) + 1000 },
+  { month: 'Jul', total: Math.floor(Math.random() * 5000) + 1000 },
+]
 
 const AdminDashboard = () => {
   const stats = [
@@ -36,9 +58,10 @@ const AdminDashboard = () => {
   ]
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <DateRangePicker />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
@@ -61,16 +84,72 @@ const AdminDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Visão Geral</CardTitle>
+            <CardTitle>Visão Geral de Vendas</CardTitle>
           </CardHeader>
-          <CardContent className="pl-2">{/* Chart placeholder */}</CardContent>
+          <CardContent className="pl-2">
+            <ChartContainer config={{}} className="h-[300px] w-full">
+              <ResponsiveContainer>
+                <BarChart data={salesData}>
+                  <XAxis
+                    dataKey="month"
+                    stroke="#888888"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="#888888"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `R$${value}`}
+                  />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Bar
+                    dataKey="total"
+                    fill="hsl(var(--primary))"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
         </Card>
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Vendas Recentes</CardTitle>
-            <CardDescription>Você fez 265 vendas este mês.</CardDescription>
+            <CardTitle>Pedidos Recentes</CardTitle>
+            <CardDescription>
+              Você teve {mockOrders.length} pedidos recentes.
+            </CardDescription>
           </CardHeader>
-          <CardContent>{/* Recent sales placeholder */}</CardContent>
+          <CardContent>
+            <div className="space-y-4">
+              {mockOrders.slice(0, 5).map((order) => (
+                <div key={order.id} className="flex items-center">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage
+                      src={`https://img.usecurling.com/ppl/thumbnail?seed=${order.customerName}`}
+                      alt="Avatar"
+                    />
+                    <AvatarFallback>
+                      {order.customerName.substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="ml-4 space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {order.customerName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Pedido {order.id}
+                    </p>
+                  </div>
+                  <div className="ml-auto font-medium">
+                    +R$ {order.total.toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>

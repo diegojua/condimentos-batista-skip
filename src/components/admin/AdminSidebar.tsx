@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   Users,
   Settings,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -36,6 +37,11 @@ const menuItems = [
     href: '/admin/customers',
     label: 'Clientes',
     icon: Users,
+  },
+  {
+    href: '/admin/promotions',
+    label: 'Promoções',
+    icon: Tag,
   },
   {
     href: '/admin/settings',

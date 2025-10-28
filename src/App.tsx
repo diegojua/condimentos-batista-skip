@@ -20,8 +20,11 @@ import AdminResetPassword from './pages/admin/ResetPassword'
 import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
+import AdminProductEdit from './pages/admin/ProductEdit'
 import AdminOrders from './pages/admin/Orders'
 import AdminCustomers from './pages/admin/Customers'
+import AdminPromotions from './pages/admin/Promotions'
+import AdminPromotionEdit from './pages/admin/PromotionEdit'
 import AdminSettings from './pages/admin/Settings'
 import NotFound from './pages/NotFound'
 
@@ -59,8 +62,25 @@ const App = () => (
             <Route element={<AdminLayout />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />
+              <Route
+                path="/admin/products/new"
+                element={<AdminProductEdit />}
+              />
+              <Route
+                path="/admin/products/edit/:id"
+                element={<AdminProductEdit />}
+              />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/customers" element={<AdminCustomers />} />
+              <Route path="/admin/promotions" element={<AdminPromotions />} />
+              <Route
+                path="/admin/promotions/new"
+                element={<AdminPromotionEdit />}
+              />
+              <Route
+                path="/admin/promotions/edit/:id"
+                element={<AdminPromotionEdit />}
+              />
               <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
 

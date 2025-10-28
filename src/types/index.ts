@@ -46,3 +46,16 @@ export interface Customer {
   totalOrders: number
   totalSpent: number
 }
+
+export interface Promotion {
+  id: string
+  name: string
+  description: string
+  type: 'percentage' | 'fixed'
+  value: number
+  scope: 'product' | 'category' | 'all'
+  applicableIds: string[] // product or category IDs
+  startDate: string
+  endDate: string
+  isActive: boolean
+}

@@ -1,4 +1,4 @@
-import { Product, Category, Review, Order, Customer } from '@/types'
+import { Product, Category, Review, Order, Customer, Promotion } from '@/types'
 
 export const mockCategories: Category[] = [
   {
@@ -247,5 +247,44 @@ export const mockCustomers: Customer[] = [
     phone: '(41) 98888-7777',
     totalOrders: 2,
     totalSpent: 150.2,
+  },
+]
+
+export const mockPromotions: Promotion[] = [
+  {
+    id: 'PROMO01',
+    name: '10% OFF em Pimentas',
+    description: 'Desconto de 10% em todos os produtos da categoria Pimentas.',
+    type: 'percentage',
+    value: 10,
+    scope: 'category',
+    applicableIds: ['pimentas'],
+    startDate: '2024-01-01',
+    endDate: '2025-12-31',
+    isActive: true,
+  },
+  {
+    id: 'PROMO02',
+    name: 'R$ 5 de Desconto no Barbecue',
+    description: 'Desconto de R$ 5,00 no Molho Barbecue Artesanal.',
+    type: 'fixed',
+    value: 5,
+    scope: 'product',
+    applicableIds: ['3'],
+    startDate: '2024-07-01',
+    endDate: '2024-08-31',
+    isActive: true,
+  },
+  {
+    id: 'PROMO03',
+    name: 'Promoção de Inverno',
+    description: 'Descontos de inverno em produtos selecionados.',
+    type: 'percentage',
+    value: 15,
+    scope: 'product',
+    applicableIds: ['4', '5'],
+    startDate: '2024-06-01',
+    endDate: '2024-07-31',
+    isActive: false,
   },
 ]
