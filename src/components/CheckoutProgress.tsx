@@ -5,7 +5,7 @@ interface CheckoutProgressProps {
   currentStep: number
 }
 
-const steps = ['Carrinho', 'Informações', 'Pagamento']
+const steps = ['Carrinho', 'Informações & Pagamento', 'Confirmação']
 
 export const CheckoutProgress = ({ currentStep }: CheckoutProgressProps) => {
   return (

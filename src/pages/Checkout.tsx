@@ -191,7 +191,7 @@ const Checkout = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>1. Informações do Cliente</CardTitle>
+                  <CardTitle>Informações do Cliente</CardTitle>
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 gap-4">
                   <FormField
@@ -237,7 +237,7 @@ const Checkout = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>2. Endereço de Entrega</CardTitle>
+                  <CardTitle>Endereço de Entrega</CardTitle>
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 gap-4">
                   <FormField
@@ -335,7 +335,7 @@ const Checkout = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>3. Pagamento</CardTitle>
+                  <CardTitle>Pagamento</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <FormField
