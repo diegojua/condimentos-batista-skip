@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { CheckoutProgress } from '@/components/CheckoutProgress'
 
 const checkoutSchema = z
   .object({
@@ -183,7 +184,7 @@ const Checkout = () => {
 
   return (
     <div className="container py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">Finalizar Compra</h1>
+      <CheckoutProgress currentStep={2} />
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <Form {...form}>

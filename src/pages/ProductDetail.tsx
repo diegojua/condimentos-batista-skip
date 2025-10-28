@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { mockProducts, mockReviews } from '@/lib/mock-data'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,9 @@ import {
 import { ProductCard } from '@/components/ProductCard'
 import { useCart } from '@/contexts/CartContext'
 import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { cn } from '@/lib/utils'
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -20,7 +23,24 @@ const ProductDetail = () => {
   const reviews = mockReviews.filter((r) => r.productId === id)
   const [quantity, setQuantity] = useState(1)
   const [mainImage, setMainImage] = useState(product?.images[0])
+  const [selectedVariations, setSelectedVariations] = useState<{
+    [key: string]: string
+  }>({})
   const { addToCart } = useCart()
+
+  const currentPrice = useMemo(() => {
+    if (product?.type !== 'variable' || !product.variations) {
+      return product?.promotionalPrice ?? product?.price ?? 0
+    }
+    let finalPrice = product.price
+    product.variations.forEach((variation) => {
+      const selectedOption = selectedVariations[variation.name]
+      if (selectedOption) {
+        finalPrice += variation.options[selectedOption]?.priceModifier || 0
+      }
+    })
+    return finalPrice
+  }, [product, selectedVariations])
 
   if (!product) {
     return (
@@ -36,10 +56,8 @@ const ProductDetail = () => {
     addToCart(product, quantity)
   }
 
-  const handleWhatsAppOrder = () => {
-    const message = `Olá! Gostaria de pedir ${quantity}x ${product.name}.`
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+  const handleVariationChange = (variationName: string, option: string) => {
+    setSelectedVariations((prev) => ({ ...prev, [variationName]: option }))
   }
 
   return (
@@ -49,14 +67,17 @@ const ProductDetail = () => {
           <img
             src={mainImage}
             alt={product.name}
-            className="w-full rounded-lg shadow-lg mb-4"
+            className="w-full rounded-lg shadow-lg mb-4 aspect-square object-cover"
           />
           <div className="flex gap-2">
             {product.images.map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => setMainImage(img)}
-                className={`border-2 rounded-md ${mainImage === img ? 'border-primary' : 'border-transparent'}`}
+                className={cn(
+                  'border-2 rounded-md',
+                  mainImage === img ? 'border-primary' : 'border-transparent',
+                )}
               >
                 <img
                   src={img}
@@ -84,29 +105,33 @@ const ProductDetail = () => {
               ({product.reviewCount} avaliações)
             </span>
           </div>
-          <div className="flex items-baseline gap-3 mb-6">
-            {product.promotionalPrice ? (
-              <>
-                <p className="text-4xl font-bold text-primary">
-                  R$ {product.promotionalPrice.toFixed(2)}
-                </p>
-                <p className="text-xl text-muted-foreground line-through">
-                  R$ {product.price.toFixed(2)}
-                </p>
-              </>
-            ) : (
-              <p className="text-4xl font-bold text-primary">
-                R$ {product.price.toFixed(2)}
-              </p>
-            )}
-          </div>
+          <p className="text-4xl font-bold text-primary mb-6">
+            R$ {currentPrice.toFixed(2)}
+          </p>
           <p className="text-muted-foreground mb-6">{product.description}</p>
-          <Badge
-            variant={product.stock > 0 ? 'default' : 'destructive'}
-            className={product.stock > 0 ? 'bg-success' : ''}
-          >
-            {product.stock > 0 ? 'Em Estoque' : 'Esgotado'}
-          </Badge>
+          {product.type === 'variable' &&
+            product.variations?.map((variation) => (
+              <div key={variation.id} className="mb-4">
+                <Label className="text-lg font-semibold">
+                  {variation.name}
+                </Label>
+                <RadioGroup
+                  className="flex gap-2 mt-2"
+                  onValueChange={(value) =>
+                    handleVariationChange(variation.name, value)
+                  }
+                >
+                  {Object.keys(variation.options).map((option) => (
+                    <RadioGroupItem
+                      key={option}
+                      value={option}
+                      id={`${variation.id}-${option}`}
+                      className="sr-only"
+                    />
+                  ))}
+                </RadioGroup>
+              </div>
+            ))}
           <div className="flex items-center gap-4 my-6">
             <div className="flex items-center border rounded-md">
               <Button
@@ -139,65 +164,6 @@ const ProductDetail = () => {
               Adicionar ao Carrinho
             </Button>
           </div>
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full btn-whatsapp"
-            onClick={handleWhatsAppOrder}
-          >
-            <MessageCircle className="mr-2 h-5 w-5" /> Comprar via WhatsApp
-          </Button>
-          <Accordion type="single" collapsible className="w-full mt-8">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>Ingredientes</AccordionTrigger>
-              <AccordionContent>
-                Informações sobre ingredientes aqui.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>Informação Nutricional</AccordionTrigger>
-              <AccordionContent>Tabela nutricional aqui.</AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </div>
-
-      <div className="mt-16">
-        <h2 className="text-3xl font-bold mb-6">Avaliações de Clientes</h2>
-        <div className="space-y-6">
-          {reviews.map((review) => (
-            <div key={review.id} className="border-b pb-4">
-              <div className="flex items-center mb-2">
-                <div className="flex text-yellow-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={i < review.rating ? 'fill-current' : ''}
-                    />
-                  ))}
-                </div>
-                <p className="ml-4 font-bold">{review.author}</p>
-                <p className="ml-auto text-sm text-muted-foreground">
-                  {review.date}
-                </p>
-              </div>
-              <p className="text-muted-foreground">{review.comment}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-16">
-        <h2 className="text-3xl font-bold mb-6">Produtos Relacionados</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {mockProducts
-            .filter(
-              (p) => p.category === product.category && p.id !== product.id,
-            )
-            .slice(0, 4)
-            .map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
         </div>
       </div>
     </div>

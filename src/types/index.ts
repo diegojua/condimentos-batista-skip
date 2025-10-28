@@ -1,3 +1,17 @@
+export interface ProductVariation {
+  id: string
+  name: string // e.g., "Tamanho", "Cor"
+  options: {
+    // e.g., "P", "M", "G" or "Vermelho", "Azul"
+    [optionName: string]: {
+      sku: string
+      priceModifier: number // Can be positive or negative
+      stock: number
+      image?: string // Optional image for this specific variation option
+    }
+  }
+}
+
 export interface Product {
   id: string
   name: string
@@ -9,6 +23,8 @@ export interface Product {
   stock: number
   rating: number
   reviewCount: number
+  type?: 'simple' | 'variable'
+  variations?: ProductVariation[]
 }
 
 export interface Category {
@@ -28,6 +44,9 @@ export interface Review {
 
 export interface CartItem extends Product {
   quantity: number
+  variation?: {
+    [variationName: string]: string
+  } // e.g., { "Tamanho": "M", "Cor": "Vermelho" }
 }
 
 export interface Order {
@@ -83,4 +102,25 @@ export interface LoyaltySettings {
     gold: { points: number; multiplier: number }
   }
   rewards: LoyaltyReward[]
+}
+
+export interface EmailCampaign {
+  id: string
+  name: string
+  subject: string
+  targetSegment: 'all' | 'new' | 'frequent'
+  status: 'draft' | 'sent'
+  sentDate?: string
+  openRate: number
+  clickRate: number
+}
+
+export interface Affiliate {
+  id: string
+  name: string
+  email: string
+  referralCode: string
+  commissionRate: number // percentage
+  totalReferrals: number
+  totalEarnings: number
 }

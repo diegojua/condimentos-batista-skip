@@ -14,6 +14,7 @@ import {
   Users,
   Settings,
   Tag,
+  Megaphone,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -42,6 +43,11 @@ const menuItems = [
     href: '/admin/promotions',
     label: 'Promoções',
     icon: Tag,
+  },
+  {
+    href: '/admin/marketing',
+    label: 'Marketing',
+    icon: Megaphone,
   },
   {
     href: '/admin/settings',

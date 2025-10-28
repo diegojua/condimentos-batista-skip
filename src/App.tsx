@@ -16,6 +16,7 @@ import OrderConfirmation from './pages/OrderConfirmation'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import LoyaltyPage from './pages/Loyalty'
+import AffiliateDashboard from './pages/AffiliateDashboard'
 import AdminLogin from './pages/admin/Login'
 import AdminForgotPassword from './pages/admin/ForgotPassword'
 import AdminResetPassword from './pages/admin/ResetPassword'
@@ -27,6 +28,8 @@ import AdminOrders from './pages/admin/Orders'
 import AdminCustomers from './pages/admin/Customers'
 import AdminPromotions from './pages/admin/Promotions'
 import AdminPromotionEdit from './pages/admin/PromotionEdit'
+import AdminMarketing from './pages/admin/Marketing'
+import AdminCampaignEdit from './pages/admin/CampaignEdit'
 import AdminSettings from './pages/admin/Settings'
 import NotFound from './pages/NotFound'
 
@@ -53,6 +56,11 @@ const App = () => (
                 <Route path="/contato" element={<Contact />} />
                 <Route path="/fidelidade" element={<LoyaltyPage />} />
               </Route>
+
+              <Route
+                path="/afiliados/dashboard"
+                element={<AffiliateDashboard />}
+              />
 
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route
@@ -84,6 +92,15 @@ const App = () => (
                 <Route
                   path="/admin/promotions/edit/:id"
                   element={<AdminPromotionEdit />}
+                />
+                <Route path="/admin/marketing" element={<AdminMarketing />} />
+                <Route
+                  path="/admin/campaigns/new"
+                  element={<AdminCampaignEdit />}
+                />
+                <Route
+                  path="/admin/campaigns/edit/:id"
+                  element={<AdminCampaignEdit />}
                 />
                 <Route path="/admin/settings" element={<AdminSettings />} />
               </Route>
