@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -88,11 +88,6 @@ const AdminLogin = () => {
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
-            <Link to="#" className="underline">
-              Esqueceu a senha?
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>

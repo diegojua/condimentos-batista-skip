@@ -6,15 +6,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
 } from '@/components/ui/sidebar'
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  LogOut,
-} from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const menuItems = [
@@ -68,18 +61,6 @@ export const AdminSidebar = () => {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link to="/">
-                <LogOut className="h-5 w-5" />
-                <span>Sair</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   )
 }
