@@ -17,6 +17,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import LoyaltyPage from './pages/Loyalty'
 import AffiliateDashboard from './pages/AffiliateDashboard'
+import SupportTicket from './pages/SupportTicket'
 import AdminLogin from './pages/admin/Login'
 import AdminForgotPassword from './pages/admin/ForgotPassword'
 import AdminResetPassword from './pages/admin/ResetPassword'
@@ -31,6 +32,8 @@ import AdminPromotionEdit from './pages/admin/PromotionEdit'
 import AdminMarketing from './pages/admin/Marketing'
 import AdminCampaignEdit from './pages/admin/CampaignEdit'
 import AdminSettings from './pages/admin/Settings'
+import AdminMarketplace from './pages/admin/Marketplace'
+import AdminSupport from './pages/admin/Support'
 import NotFound from './pages/NotFound'
 
 const App = () => (
@@ -55,6 +58,7 @@ const App = () => (
                 <Route path="/sobre" element={<About />} />
                 <Route path="/contato" element={<Contact />} />
                 <Route path="/fidelidade" element={<LoyaltyPage />} />
+                <Route path="/suporte" element={<SupportTicket />} />
               </Route>
 
               <Route
@@ -102,6 +106,11 @@ const App = () => (
                   path="/admin/campaigns/edit/:id"
                   element={<AdminCampaignEdit />}
                 />
+                <Route
+                  path="/admin/marketplace"
+                  element={<AdminMarketplace />}
+                />
+                <Route path="/admin/support" element={<AdminSupport />} />
                 <Route path="/admin/settings" element={<AdminSettings />} />
               </Route>
 

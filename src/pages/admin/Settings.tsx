@@ -24,14 +24,12 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { TwoFactorAuthSetup } from '@/components/admin/TwoFactorAuthSetup'
 import { useState } from 'react'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Trash2 } from 'lucide-react'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const AdminSettings = () => {
   const { settings, updateSettings } = useSettings()
@@ -58,17 +56,6 @@ const AdminSettings = () => {
     })
   }
 
-  const getIntegrationStatus = (apiKey: string) => {
-    if (apiKey && apiKey.length > 10) {
-      return (
-        <Badge variant="default" className="bg-success">
-          Ativo
-        </Badge>
-      )
-    }
-    return <Badge variant="destructive">Erro de Configuração</Badge>
-  }
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Configurações</h1>
@@ -77,19 +64,13 @@ const AdminSettings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Segurança</CardTitle>
-              <CardDescriptionComponent>
-                Gerencie as configurações de segurança da sua conta.
-              </CardDescriptionComponent>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">
                     Autenticação de Dois Fatores (2FA)
                   </FormLabel>
-                  <FormDescription>
-                    Adicione uma camada extra de segurança à sua conta.
-                  </FormDescription>
                 </div>
                 {settings.twoFactorAuth.enabled ? (
                   <Button
@@ -122,142 +103,39 @@ const AdminSettings = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Programa de Fidelidade</CardTitle>
-              <CardDescriptionComponent>
-                Configure as regras para o programa de fidelidade.
-              </CardDescriptionComponent>
+              <CardTitle>Recomendações de Produtos</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <FormField
                 control={form.control}
-                name="loyalty.enabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Ativar Programa
-                      </FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="loyalty.pointsPerDollar"
+                name={'recommendationAlgorithm' as any}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pontos por R$ 1,00 Gasto</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        disabled={!form.watch('loyalty.enabled')}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Cartão de Crédito (Stripe)</CardTitle>
-                  <CardDescriptionComponent>
-                    API Key: {settings.creditCard.apiKey}
-                  </CardDescriptionComponent>
-                </div>
-                {getIntegrationStatus(settings.creditCard.apiKey)}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="creditCard.enabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Ativar</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="creditCard.apiKey"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stripe API Key</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="pk_test_..."
-                        {...field}
-                        disabled={!form.watch('creditCard.enabled')}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>PIX</CardTitle>
-                  <CardDescriptionComponent>
-                    Chave: {settings.pix.apiKey}
-                  </CardDescriptionComponent>
-                </div>
-                {getIntegrationStatus(settings.pix.apiKey)}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="pix.enabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Ativar</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="pix.apiKey"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Chave PIX</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Sua chave PIX"
-                        {...field}
-                        disabled={!form.watch('pix.enabled')}
-                      />
-                    </FormControl>
+                    <FormLabel>Algoritmo de Recomendação</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={'related'}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o algoritmo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="related">
+                          Produtos Relacionados
+                        </SelectItem>
+                        <SelectItem value="bought-together">
+                          Comprados Juntos com Frequência
+                        </SelectItem>
+                        <SelectItem value="viewed-also-viewed">
+                          Clientes Também Viram
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Escolha como as recomendações são geradas.
+                    </FormDescription>
                   </FormItem>
                 )}
               />

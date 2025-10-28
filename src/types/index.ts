@@ -55,6 +55,7 @@ export interface Order {
   date: string
   total: number
   status: 'Pendente' | 'Processando' | 'Enviado' | 'Entregue' | 'Cancelado'
+  source?: string // e.g., 'Website', 'Amazon'
 }
 
 export interface LoyaltyInfo {
@@ -123,4 +124,33 @@ export interface Affiliate {
   commissionRate: number // percentage
   totalReferrals: number
   totalEarnings: number
+}
+
+export interface Marketplace {
+  id: 'amazon' | 'mercado-livre'
+  name: string
+  description: string
+  logo: string
+  status: 'connected' | 'disconnected' | 'error'
+  sync: {
+    products: boolean
+    orders: boolean
+    inventory: boolean
+  }
+}
+
+export interface LiveChatMessage {
+  id: string
+  sender: 'user' | 'agent'
+  text: string
+  timestamp: string
+}
+
+export interface SupportTicket {
+  id: string
+  subject: string
+  customerName: string
+  date: string
+  status: 'open' | 'in-progress' | 'closed'
+  priority: 'low' | 'medium' | 'high'
 }

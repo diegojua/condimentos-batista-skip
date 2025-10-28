@@ -7,6 +7,8 @@ import {
   Promotion,
   EmailCampaign,
   Affiliate,
+  Marketplace,
+  SupportTicket,
 } from '@/types'
 
 export const mockCategories: Category[] = [
@@ -137,6 +139,7 @@ export const mockOrders: Order[] = [
     date: '2024-07-28',
     total: 150.75,
     status: 'Entregue',
+    source: 'Website',
   },
   {
     id: '#3101',
@@ -144,6 +147,15 @@ export const mockOrders: Order[] = [
     date: '2024-07-28',
     total: 88.0,
     status: 'Enviado',
+    source: 'Website',
+  },
+  {
+    id: 'AMZ-101',
+    customerName: 'Carlos Souza',
+    date: '2024-07-27',
+    total: 22.0,
+    status: 'Processando',
+    source: 'Amazon',
   },
 ]
 
@@ -213,5 +225,51 @@ export const mockAffiliates: Affiliate[] = [
     commissionRate: 12,
     totalReferrals: 88,
     totalEarnings: 980.2,
+  },
+]
+
+export const mockMarketplaces: Marketplace[] = [
+  {
+    id: 'amazon',
+    name: 'Amazon',
+    description: 'Venda seus produtos no maior varejista online do mundo.',
+    logo: 'https://img.usecurling.com/i?q=amazon&color=solid-black',
+    status: 'connected',
+    sync: {
+      products: true,
+      orders: true,
+      inventory: true,
+    },
+  },
+  {
+    id: 'mercado-livre',
+    name: 'Mercado Livre',
+    description: 'Conecte-se ao maior marketplace da América Latina.',
+    logo: 'https://img.usecurling.com/i?q=mercado%20libre&color=yellow',
+    status: 'disconnected',
+    sync: {
+      products: false,
+      orders: false,
+      inventory: false,
+    },
+  },
+]
+
+export const mockTickets: SupportTicket[] = [
+  {
+    id: 'TKT-001',
+    subject: 'Dúvida sobre o pedido #3101',
+    customerName: 'Bruno Lima',
+    date: '2024-07-29',
+    status: 'open',
+    priority: 'medium',
+  },
+  {
+    id: 'TKT-002',
+    subject: 'Produto chegou danificado',
+    customerName: 'Ana Costa',
+    date: '2024-07-29',
+    status: 'in-progress',
+    priority: 'high',
   },
 ]

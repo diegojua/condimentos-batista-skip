@@ -3,24 +3,17 @@ import { useParams } from 'react-router-dom'
 import { mockProducts, mockReviews } from '@/lib/mock-data'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Star, Plus, Minus, MessageCircle } from 'lucide-react'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
+import { Star, Plus, Minus } from 'lucide-react'
 import { ProductCard } from '@/components/ProductCard'
 import { useCart } from '@/contexts/CartContext'
-import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
+import { RecommendedProducts } from '@/components/RecommendedProducts'
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>()
   const product = mockProducts.find((p) => p.id === id)
-  const reviews = mockReviews.filter((r) => r.productId === id)
   const [quantity, setQuantity] = useState(1)
   const [mainImage, setMainImage] = useState(product?.images[0])
   const [selectedVariations, setSelectedVariations] = useState<{
@@ -60,113 +53,121 @@ const ProductDetail = () => {
     setSelectedVariations((prev) => ({ ...prev, [variationName]: option }))
   }
 
+  const recommended = mockProducts.filter((p) => p.id !== product.id)
+
   return (
-    <div className="container py-12">
-      <div className="grid md:grid-cols-2 gap-12">
-        <div>
-          <img
-            src={mainImage}
-            alt={product.name}
-            className="w-full rounded-lg shadow-lg mb-4 aspect-square object-cover"
-          />
-          <div className="flex gap-2">
-            {product.images.map((img, idx) => (
-              <button
-                key={idx}
-                onClick={() => setMainImage(img)}
-                className={cn(
-                  'border-2 rounded-md',
-                  mainImage === img ? 'border-primary' : 'border-transparent',
-                )}
-              >
-                <img
-                  src={img}
-                  alt={`${product.name} thumbnail ${idx + 1}`}
-                  className="w-20 h-20 object-cover rounded"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <h1 className="text-4xl font-bold mb-2">{product.name}</h1>
-          <div className="flex items-center gap-2 text-lg mb-4">
-            <div className="flex text-yellow-500">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={
-                    i < Math.round(product.rating) ? 'fill-current' : ''
-                  }
-                />
+    <>
+      <div className="container py-12">
+        <div className="grid md:grid-cols-2 gap-12">
+          <div>
+            <img
+              src={mainImage}
+              alt={product.name}
+              className="w-full rounded-lg shadow-lg mb-4 aspect-square object-cover"
+            />
+            <div className="flex gap-2">
+              {product.images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setMainImage(img)}
+                  className={cn(
+                    'border-2 rounded-md',
+                    mainImage === img ? 'border-primary' : 'border-transparent',
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`${product.name} thumbnail ${idx + 1}`}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                </button>
               ))}
             </div>
-            <span className="text-muted-foreground">
-              ({product.reviewCount} avaliações)
-            </span>
           </div>
-          <p className="text-4xl font-bold text-primary mb-6">
-            R$ {currentPrice.toFixed(2)}
-          </p>
-          <p className="text-muted-foreground mb-6">{product.description}</p>
-          {product.type === 'variable' &&
-            product.variations?.map((variation) => (
-              <div key={variation.id} className="mb-4">
-                <Label className="text-lg font-semibold">
-                  {variation.name}
-                </Label>
-                <RadioGroup
-                  className="flex gap-2 mt-2"
-                  onValueChange={(value) =>
-                    handleVariationChange(variation.name, value)
-                  }
-                >
-                  {Object.keys(variation.options).map((option) => (
-                    <RadioGroupItem
-                      key={option}
-                      value={option}
-                      id={`${variation.id}-${option}`}
-                      className="sr-only"
-                    />
-                  ))}
-                </RadioGroup>
+          <div>
+            <h1 className="text-4xl font-bold mb-2">{product.name}</h1>
+            <div className="flex items-center gap-2 text-lg mb-4">
+              <div className="flex text-yellow-500">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={
+                      i < Math.round(product.rating) ? 'fill-current' : ''
+                    }
+                  />
+                ))}
               </div>
-            ))}
-          <div className="flex items-center gap-4 my-6">
-            <div className="flex items-center border rounded-md">
+              <span className="text-muted-foreground">
+                ({product.reviewCount} avaliações)
+              </span>
+            </div>
+            <p className="text-4xl font-bold text-primary mb-6">
+              R$ {currentPrice.toFixed(2)}
+            </p>
+            <p className="text-muted-foreground mb-6">{product.description}</p>
+            {product.type === 'variable' &&
+              product.variations?.map((variation) => (
+                <div key={variation.id} className="mb-4">
+                  <Label className="text-lg font-semibold">
+                    {variation.name}
+                  </Label>
+                  <RadioGroup
+                    className="flex gap-2 mt-2"
+                    onValueChange={(value) =>
+                      handleVariationChange(variation.name, value)
+                    }
+                  >
+                    {Object.keys(variation.options).map((option) => (
+                      <RadioGroupItem
+                        key={option}
+                        value={option}
+                        id={`${variation.id}-${option}`}
+                        className="sr-only"
+                      />
+                    ))}
+                  </RadioGroup>
+                </div>
+              ))}
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex items-center border rounded-md">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleQuantityChange(-1)}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={quantity}
+                  readOnly
+                  className="w-16 text-center border-0 focus-visible:ring-0"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleQuantityChange(1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleQuantityChange(-1)}
+                size="lg"
+                className="flex-1 btn-primary"
+                onClick={handleAddToCart}
+                disabled={product.stock === 0}
               >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <Input
-                type="number"
-                value={quantity}
-                readOnly
-                className="w-16 text-center border-0 focus-visible:ring-0"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleQuantityChange(1)}
-              >
-                <Plus className="h-4 w-4" />
+                Adicionar ao Carrinho
               </Button>
             </div>
-            <Button
-              size="lg"
-              className="flex-1 btn-primary"
-              onClick={handleAddToCart}
-              disabled={product.stock === 0}
-            >
-              Adicionar ao Carrinho
-            </Button>
           </div>
         </div>
       </div>
-    </div>
+      <RecommendedProducts
+        title="Clientes também compraram"
+        products={recommended}
+      />
+    </>
   )
 }
 
