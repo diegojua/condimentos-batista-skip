@@ -1,29 +1,45 @@
-/* Main App Component - Handles routing (using react-router-dom), query client and other providers - use this file to add all routes */
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import Index from './pages/Index'
-import NotFound from './pages/NotFound'
-import Layout from './components/Layout'
+import { CartProvider } from '@/contexts/CartContext'
 
-// ONLY IMPORT AND RENDER WORKING PAGES, NEVER ADD PLACEHOLDER COMPONENTS OR PAGES IN THIS FILE
-// AVOID REMOVING ANY CONTEXT PROVIDERS FROM THIS FILE (e.g. TooltipProvider, Toaster, Sonner)
+import Layout from './components/Layout'
+import Index from './pages/Index'
+import Products from './pages/Products'
+import ProductDetail from './pages/ProductDetail'
+import Cart from './pages/Cart'
+import Checkout from './pages/Checkout'
+import OrderConfirmation from './pages/OrderConfirmation'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import AdminLogin from './pages/admin/Login'
+import NotFound from './pages/NotFound'
 
 const App = () => (
-  <BrowserRouter
-    future={{ v7_startTransition: false, v7_relativeSplatPath: false }}
-  >
+  <BrowserRouter>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES MUST BE ADDED HERE */}
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <CartProvider>
+        <Toaster />
+        <Sonner />
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/produtos" element={<Products />} />
+            <Route path="/produtos/:id" element={<ProductDetail />} />
+            <Route path="/carrinho" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/confirmacao-pedido" element={<OrderConfirmation />} />
+            <Route path="/sobre" element={<About />} />
+            <Route path="/contato" element={<Contact />} />
+          </Route>
+
+          <Route path="/admin/login" element={<AdminLogin />} />
+          {/* Add other admin routes with an AdminLayout here */}
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </CartProvider>
     </TooltipProvider>
   </BrowserRouter>
 )
