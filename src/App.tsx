@@ -14,6 +14,8 @@ import OrderConfirmation from './pages/OrderConfirmation'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import AdminLogin from './pages/admin/Login'
+import AdminLayout from './components/admin/AdminLayout'
+import AdminDashboard from './pages/admin/Dashboard'
 import NotFound from './pages/NotFound'
 
 const App = () => (
@@ -35,7 +37,10 @@ const App = () => (
           </Route>
 
           <Route path="/admin/login" element={<AdminLogin />} />
-          {/* Add other admin routes with an AdminLayout here */}
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* Add other admin routes here */}
+          </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>
