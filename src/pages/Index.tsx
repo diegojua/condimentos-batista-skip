@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,10 +10,12 @@ import {
 } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import { ProductCard } from '@/components/ProductCard'
-import { mockProducts, mockCategories } from '@/lib/mock-data'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
 import { usePersonalization } from '@/contexts/PersonalizationContext'
+import { getFeaturedProducts, getCategories } from '@/services/products'
+import { Product, Category } from '@/types'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const AnimatedSection = ({
   children,
@@ -40,6 +43,28 @@ const AnimatedSection = ({
 
 const Index = () => {
   const { activeBanner } = usePersonalization()
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          getFeaturedProducts(4),
+          getCategories(),
+        ])
+        setFeaturedProducts(productsData)
+        setCategories(categoriesData)
+      } catch (error) {
+        console.error('Failed to fetch initial data', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const heroSlides = [
     {
@@ -134,11 +159,24 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center mb-8">
             Nossos Produtos em Destaque
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {mockProducts.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-56 w-full" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </section>
       </AnimatedSection>
 
@@ -147,26 +185,37 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center mb-8">
             Categorias Populares
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {mockCategories.map((category) => (
-              <Link
-                to={`/produtos?category=${category.id}`}
-                key={category.id}
-                className="group relative overflow-hidden rounded-lg"
-              >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <h3 className="text-2xl font-bold text-white">
-                    {category.name}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-64 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories.map((category) => (
+                <Link
+                  to={`/produtos?category=${category.id}`}
+                  key={category.id}
+                  className="group relative overflow-hidden rounded-lg"
+                >
+                  <img
+                    src={
+                      category.image ??
+                      'https://img.usecurling.com/p/400/400?q=placeholder'
+                    }
+                    alt={category.name}
+                    className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <h3 className="text-2xl font-bold text-white">
+                      {category.name}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </AnimatedSection>
 

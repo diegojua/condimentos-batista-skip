@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
-import { mockProducts } from '@/lib/mock-data'
+import { useState, useMemo, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Star, Plus, Minus } from 'lucide-react'
@@ -9,20 +8,51 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 import { RecommendedProducts } from '@/components/RecommendedProducts'
+import { getProductById, getAllProducts } from '@/services/products'
+import { Product } from '@/types'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>()
-  const product = mockProducts.find((p) => p.id === id)
+  const navigate = useNavigate()
+  const [product, setProduct] = useState<Product | null>(null)
+  const [recommended, setRecommended] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
-  const [mainImage, setMainImage] = useState(product?.images[0])
+  const [mainImage, setMainImage] = useState<string | undefined>(undefined)
   const [selectedVariations, setSelectedVariations] = useState<{
     [key: string]: string
   }>({})
   const { addToCart } = useCart()
 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return
+      setLoading(true)
+      const productId = parseInt(id, 10)
+      if (isNaN(productId)) {
+        navigate('/not-found')
+        return
+      }
+      const productData = await getProductById(productId)
+      if (productData) {
+        setProduct(productData)
+        setMainImage(productData.images[0])
+        const allProducts = await getAllProducts()
+        setRecommended(allProducts.filter((p) => p.id !== productData.id))
+      } else {
+        navigate('/not-found')
+      }
+      setLoading(false)
+    }
+    window.scrollTo(0, 0)
+    fetchProduct()
+  }, [id, navigate])
+
   const currentPrice = useMemo(() => {
-    if (product?.type !== 'variable' || !product.variations) {
-      return product?.promotionalPrice ?? product?.price ?? 0
+    if (!product) return 0
+    if (product.type !== 'variable' || !product.variations) {
+      return product.promotionalPrice ?? product.price
     }
     let finalPrice = product.price
     product.variations.forEach((variation) => {
@@ -34,10 +64,31 @@ const ProductDetail = () => {
     return finalPrice
   }, [product, selectedVariations])
 
-  if (!product) {
+  if (loading) {
     return (
-      <div className="container py-8 text-center">Produto não encontrado.</div>
+      <div className="container py-12">
+        <div className="grid md:grid-cols-2 gap-12">
+          <div>
+            <Skeleton className="w-full aspect-square mb-4" />
+            <div className="flex gap-2">
+              <Skeleton className="w-20 h-20" />
+              <Skeleton className="w-20 h-20" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-12 w-1/3" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
     )
+  }
+
+  if (!product) {
+    return null
   }
 
   const handleQuantityChange = (amount: number) => {
@@ -51,8 +102,6 @@ const ProductDetail = () => {
   const handleVariationChange = (variationName: string, option: string) => {
     setSelectedVariations((prev) => ({ ...prev, [variationName]: option }))
   }
-
-  const recommended = mockProducts.filter((p) => p.id !== product.id)
 
   return (
     <>

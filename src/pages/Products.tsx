@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { mockProducts, mockCategories } from '@/lib/mock-data'
 import { ProductCard } from '@/components/ProductCard'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -23,9 +22,16 @@ import {
 } from '@/components/ui/pagination'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getAllProducts, getCategories } from '@/services/products'
+import { Product, Category } from '@/types'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const [allProducts, setAllProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100])
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.getAll('category'),
@@ -34,8 +40,22 @@ const Products = () => {
   const [minRating, setMinRating] = useState(0)
   const [sortBy, setSortBy] = useState('popular')
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      const [productsData, categoriesData] = await Promise.all([
+        getAllProducts(),
+        getCategories(),
+      ])
+      setAllProducts(productsData)
+      setCategories(categoriesData)
+      setLoading(false)
+    }
+    fetchData()
+  }, [])
+
   const filteredProducts = useMemo(() => {
-    let products = mockProducts
+    let products = allProducts
 
     if (selectedCategories.length > 0) {
       products = products.filter((p) => selectedCategories.includes(p.category))
@@ -56,14 +76,21 @@ const Products = () => {
         case 'price-asc':
           return priceA - priceB
         case 'price-desc':
-          return priceB - a.price
+          return priceB - priceA
         case 'rating':
           return b.rating - a.rating
-        default:
-          return b.reviewCount - a.reviewCount // 'popular'
+        default: // 'popular'
+          return (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
       }
     })
-  }, [selectedCategories, inStockOnly, minRating, priceRange, sortBy])
+  }, [
+    allProducts,
+    selectedCategories,
+    inStockOnly,
+    minRating,
+    priceRange,
+    sortBy,
+  ])
 
   const handleCategoryChange = (categoryId: string) => {
     const newCategories = selectedCategories.includes(categoryId)
@@ -90,7 +117,7 @@ const Products = () => {
             <div>
               <h4 className="font-semibold mb-2">Categorias</h4>
               <div className="space-y-2">
-                {mockCategories.map((cat) => (
+                {categories.map((cat) => (
                   <div key={cat.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={cat.id}
@@ -171,11 +198,24 @@ const Products = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-56 w-full" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
           <Pagination className="mt-8">
             <PaginationContent>
               <PaginationItem>
@@ -183,11 +223,6 @@ const Products = () => {
               </PaginationItem>
               <PaginationItem>
                 <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" isActive>
-                  2
-                </PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext href="#" />
