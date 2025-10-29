@@ -1,5 +1,5 @@
 -- Create the profiles table to store user metadata
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     role TEXT NOT NULL DEFAULT 'customer',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -11,12 +11,14 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id)
-  VALUES (new.id);
+  VALUES (new.id)
+  ON CONFLICT (id) DO NOTHING; -- Handle cases where profile might already exist
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger to call the function when a new user is created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
@@ -26,16 +28,19 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Policies for the profiles table
 -- 1. Allow users to read their own profile.
+DROP POLICY IF EXISTS "Allow individual read access" ON public.profiles;
 CREATE POLICY "Allow individual read access" ON public.profiles
   FOR SELECT USING (auth.uid() = id);
 
 -- 2. Allow admins to read all profiles.
+DROP POLICY IF EXISTS "Allow admin read access" ON public.profiles;
 CREATE POLICY "Allow admin read access" ON public.profiles
   FOR SELECT USING (
     (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
   );
 
 -- 3. Allow admins to update any profile's role.
+DROP POLICY IF EXISTS "Allow admin update access" ON public.profiles;
 CREATE POLICY "Allow admin update access" ON public.profiles
   FOR UPDATE USING (
     (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
