@@ -20,12 +20,9 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSettings } from '@/contexts/SettingsContext'
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from '@/components/ui/input-otp'
+import { useAuth } from '@/contexts/AuthContext'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -34,43 +31,28 @@ const loginSchema = z.object({
 
 const AdminLogin = () => {
   const navigate = useNavigate()
-  const { settings } = useSettings()
-  const [loginStep, setLoginStep] = useState<'credentials' | '2fa'>(
-    'credentials',
-  )
-  const [otp, setOtp] = useState('')
+  const { signIn } = useAuth()
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: 'admin@condimentos.com',
+      password: 'adminpassword',
+    },
   })
 
-  function onCredentialSubmit(values: z.infer<typeof loginSchema>) {
-    if (values.email !== 'admin@condimentos.com') {
-      form.setError('email', {
-        message: 'Usuário não encontrado. Por favor, verifique seu e-mail.',
-      })
-      return
-    }
-    if (values.password !== 'admin123') {
-      form.setError('password', {
-        message: 'Senha incorreta. Por favor, tente novamente.',
-      })
-      return
-    }
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    setLoading(true)
+    setError(null)
+    const { error } = await signIn(values.email, values.password)
+    setLoading(false)
 
-    if (settings.twoFactorAuth.enabled) {
-      setLoginStep('2fa')
+    if (error) {
+      setError(error.message)
     } else {
       navigate('/admin/dashboard')
-    }
-  }
-
-  function onOtpSubmit() {
-    // Mock OTP validation
-    if (otp.length === 6) {
-      navigate('/admin/dashboard')
-    } else {
-      // You can add a more specific error message here
     }
   }
 
@@ -79,77 +61,58 @@ const AdminLogin = () => {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Área Administrativa</CardTitle>
-          <CardDescription>
-            {loginStep === 'credentials'
-              ? 'Faça login para gerenciar a loja.'
-              : 'Insira o código de autenticação.'}
-          </CardDescription>
+          <CardDescription>Faça login para gerenciar a loja.</CardDescription>
         </CardHeader>
         <CardContent>
-          {loginStep === 'credentials' ? (
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onCredentialSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Senha</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="text-right">
-                  <Button asChild variant="link" className="px-0 h-auto">
-                    <Link to="/admin/forgot-password">Esqueci minha senha</Link>
-                  </Button>
-                </div>
-                <Button type="submit" className="w-full btn-primary">
-                  Entrar
-                </Button>
-              </form>
-            </Form>
-          ) : (
-            <div className="space-y-6 flex flex-col items-center">
-              <FormLabel>Código de Verificação</FormLabel>
-              <InputOTP
-                maxLength={6}
-                value={otp}
-                onChange={(value) => setOtp(value)}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-              <Button onClick={onOtpSubmit} className="w-full btn-primary">
-                Verificar
-              </Button>
-            </div>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erro de Login</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="text-right">
+                <Button asChild variant="link" className="px-0 h-auto">
+                  <Link to="/admin/forgot-password">Esqueci minha senha</Link>
+                </Button>
+              </div>
+              <Button
+                type="submit"
+                className="w-full btn-primary"
+                disabled={loading}
+              >
+                {loading ? 'Entrando...' : 'Entrar'}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
