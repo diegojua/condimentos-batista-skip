@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -19,7 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
@@ -31,9 +31,18 @@ const loginSchema = z.object({
 
 const AdminLogin = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { signIn } = useAuth()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (location.state?.error) {
+      setError(location.state.error)
+      // Clear the state so the error doesn't persist on refresh
+      navigate(location.pathname, { replace: true })
+    }
+  }, [location, navigate])
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -46,12 +55,14 @@ const AdminLogin = () => {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setLoading(true)
     setError(null)
-    const { error } = await signIn(values.email, values.password)
+    const { error: authError } = await signIn(values.email, values.password)
     setLoading(false)
 
-    if (error) {
-      setError(error.message)
+    if (authError) {
+      setError('Credenciais inválidas. Por favor, tente novamente.')
     } else {
+      // The AuthContext will update and ProtectedRoute will handle redirection
+      // based on the fetched profile role.
       navigate('/admin/dashboard')
     }
   }
@@ -67,7 +78,7 @@ const AdminLogin = () => {
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Erro de Login</AlertTitle>
+              <AlertTitle>Erro de Acesso</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}

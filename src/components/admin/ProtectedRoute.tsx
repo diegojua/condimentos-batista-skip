@@ -1,9 +1,10 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const ProtectedRoute = () => {
   const { user, profile, loading } = useAuth()
+  const location = useLocation()
 
   if (loading) {
     return (
@@ -16,8 +17,22 @@ export const ProtectedRoute = () => {
     )
   }
 
-  if (!user || profile?.role !== 'admin') {
-    return <Navigate to="/admin/login" replace />
+  if (!user) {
+    return <Navigate to="/admin/login" state={{ from: location }} replace />
+  }
+
+  if (profile?.role !== 'admin') {
+    return (
+      <Navigate
+        to="/admin/login"
+        state={{
+          from: location,
+          error:
+            'Acesso negado. Você não tem permissão para acessar esta área.',
+        }}
+        replace
+      />
+    )
   }
 
   return <Outlet />

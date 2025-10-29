@@ -15,6 +15,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          id: string
+          image: string | null
+          name: string
+        }
+        Insert: {
+          id: string
+          image?: string | null
+          name: string
+        }
+        Update: {
+          id?: string
+          image?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       'Condimentos-batista': {
         Row: {
           created_at: string
@@ -53,33 +71,59 @@ export type Database = {
       }
       produtos: {
         Row: {
-          categoria: string
+          category_id: string | null
           created_at: string | null
+          description: string | null
           id: number
-          imagem: string | null
+          images: string[] | null
           nome: string
-          peso: string | null
           preco: number
+          promotional_price: number | null
+          rating: number
+          review_count: number
+          stock: number
+          type: string
+          variations: Json | null
         }
         Insert: {
-          categoria: string
+          category_id?: string | null
           created_at?: string | null
+          description?: string | null
           id?: number
-          imagem?: string | null
+          images?: string[] | null
           nome: string
-          peso?: string | null
           preco: number
+          promotional_price?: number | null
+          rating?: number
+          review_count?: number
+          stock?: number
+          type?: string
+          variations?: Json | null
         }
         Update: {
-          categoria?: string
+          category_id?: string | null
           created_at?: string | null
+          description?: string | null
           id?: number
-          imagem?: string | null
+          images?: string[] | null
           nome?: string
-          peso?: string | null
           preco?: number
+          promotional_price?: number | null
+          rating?: number
+          review_count?: number
+          stock?: number
+          type?: string
+          variations?: Json | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'produtos_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+        ]
       }
       profiles: {
         Row: {
