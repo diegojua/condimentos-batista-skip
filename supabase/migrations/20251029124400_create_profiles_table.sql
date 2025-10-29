@@ -43,3 +43,12 @@ CREATE POLICY "Allow admin update access" ON public.profiles
     (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
   );
 
+-- This script assumes a user with the email 'admin@condimentos.com' has been created
+-- in the Supabase Auth dashboard or via the API.
+-- It updates the role of that user to 'admin'.
+
+UPDATE public.profiles
+SET role = 'admin'
+WHERE id = (
+  SELECT id FROM auth.users WHERE email = 'admin@condimentos.com'
+);
