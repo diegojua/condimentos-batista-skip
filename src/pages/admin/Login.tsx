@@ -39,7 +39,6 @@ const AdminLogin = () => {
   useEffect(() => {
     if (location.state?.error) {
       setError(location.state.error)
-      // Clear the state so the error doesn't persist on refresh
       navigate(location.pathname, { replace: true })
     }
   }, [location, navigate])
@@ -47,8 +46,8 @@ const AdminLogin = () => {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'admin@condimentos.com',
-      password: 'adminpassword',
+      email: 'diegocrisos@gmail.com',
+      password: 'B&rnard0',
     },
   })
 
@@ -61,8 +60,6 @@ const AdminLogin = () => {
     if (authError) {
       setError('Credenciais inválidas. Por favor, tente novamente.')
     } else {
-      // The AuthContext will update and ProtectedRoute will handle redirection
-      // based on the fetched profile role.
       navigate('/admin/dashboard')
     }
   }

@@ -16,8 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { getAllProducts, deleteProduct } from '@/services/products'
-import { Product } from '@/types'
 import { PlusCircle, MoreHorizontal } from 'lucide-react'
 import {
   DropdownMenu,
@@ -26,7 +24,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,35 +36,45 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { toast } from '@/hooks/use-toast'
+import { getCategories, deleteCategory } from '@/services/categories'
+import { Category } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const AdminProducts = () => {
-  const [products, setProducts] = useState<Product[]>([])
+const AdminCategories = () => {
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true)
-      const data = await getAllProducts()
-      setProducts(data)
-      setLoading(false)
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories()
+        setCategories(data)
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao buscar categorias',
+        })
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchProducts()
+    fetchCategories()
   }, [])
 
-  const handleDelete = async (productId: number) => {
+  const handleDelete = async (categoryId: string) => {
     try {
-      await deleteProduct(productId)
-      setProducts(products.filter((p) => p.id !== productId))
+      await deleteCategory(categoryId)
+      setCategories(categories.filter((c) => c.id !== categoryId))
       toast({
-        title: 'Produto Excluído!',
-        description: 'O produto foi removido com sucesso.',
+        title: 'Categoria Excluída!',
+        description: 'A categoria foi removida com sucesso.',
       })
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Erro ao excluir',
-        description: 'Não foi possível excluir o produto.',
+        description:
+          'Não foi possível excluir a categoria. Verifique se ela não está sendo usada por algum produto.',
       })
     }
   }
@@ -75,30 +82,27 @@ const AdminProducts = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Gerenciar Produtos</h1>
+        <h1 className="text-2xl font-bold">Gerenciar Categorias</h1>
         <Button asChild>
-          <Link to="/admin/products/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Produto
+          <Link to="/admin/categories/new">
+            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Categoria
           </Link>
         </Button>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Produtos</CardTitle>
+          <CardTitle>Categorias</CardTitle>
           <CardDescription>
-            Uma lista de todos os produtos da sua loja.
+            Uma lista de todas as categorias de produtos.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="hidden w-[100px] sm:table-cell">
-                  Imagem
-                </TableHead>
+                <TableHead>Imagem</TableHead>
+                <TableHead>ID</TableHead>
                 <TableHead>Nome</TableHead>
-                <TableHead>Estoque</TableHead>
-                <TableHead>Preço</TableHead>
                 <TableHead>
                   <span className="sr-only">Ações</span>
                 </TableHead>
@@ -106,55 +110,39 @@ const AdminProducts = () => {
             </TableHeader>
             <TableBody>
               {loading
-                ? [...Array(5)].map((_, i) => (
+                ? [...Array(4)].map((_, i) => (
                     <TableRow key={i}>
                       <TableCell>
-                        <Skeleton className="h-16 w-16" />
+                        <Skeleton className="h-16 w-16 rounded-md" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-4 w-24" />
                       </TableCell>
                       <TableCell>
-                        <Skeleton className="h-6 w-24" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-32" />
                       </TableCell>
                       <TableCell>
                         <Skeleton className="h-8 w-8" />
                       </TableCell>
                     </TableRow>
                   ))
-                : products.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell className="hidden sm:table-cell">
+                : categories.map((category) => (
+                    <TableRow key={category.id}>
+                      <TableCell>
                         <img
-                          alt={product.name}
+                          alt={category.name}
                           className="aspect-square rounded-md object-cover"
                           height="64"
                           src={
-                            product.images?.[0] ||
+                            category.image ||
                             'https://img.usecurling.com/p/64/64?q=placeholder'
                           }
                           width="64"
                         />
                       </TableCell>
+                      <TableCell className="font-mono">{category.id}</TableCell>
                       <TableCell className="font-medium">
-                        {product.name}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            product.stock > 0 ? 'outline' : 'destructive'
-                          }
-                        >
-                          {product.stock > 0 ? 'Em Estoque' : 'Esgotado'} (
-                          {product.stock})
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        R${' '}
-                        {(product.promotionalPrice ?? product.price).toFixed(2)}
+                        {category.name}
                       </TableCell>
                       <TableCell>
                         <AlertDialog>
@@ -171,7 +159,9 @@ const AdminProducts = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Ações</DropdownMenuLabel>
                               <DropdownMenuItem asChild>
-                                <Link to={`/admin/products/edit/${product.id}`}>
+                                <Link
+                                  to={`/admin/categories/edit/${category.id}`}
+                                >
                                   Editar
                                 </Link>
                               </DropdownMenuItem>
@@ -194,7 +184,7 @@ const AdminProducts = () => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancelar</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDelete(product.id)}
+                                onClick={() => handleDelete(category.id)}
                                 className="bg-destructive hover:bg-destructive/90"
                               >
                                 Excluir
@@ -213,4 +203,4 @@ const AdminProducts = () => {
   )
 }
 
-export default AdminProducts
+export default AdminCategories

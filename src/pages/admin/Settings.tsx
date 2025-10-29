@@ -1,4 +1,6 @@
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -7,6 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form'
 import {
   Card,
@@ -29,21 +32,55 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { useAuth } from '@/contexts/AuthContext'
+
+const passwordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, 'A nova senha deve ter pelo menos 6 caracteres.'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'As senhas não coincidem',
+    path: ['confirmPassword'],
+  })
 
 const AdminSettings = () => {
   const { settings, updateSettings } = useSettings()
+  const { updatePassword } = useAuth()
   const [is2faDialogOpen, setIs2faDialogOpen] = useState(false)
-  const form = useForm<Settings>({
+
+  const settingsForm = useForm<Settings>({
     defaultValues: settings,
     values: settings,
   })
 
-  const onSubmit = (data: Settings) => {
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
+  })
+
+  const onSettingsSubmit = (data: Settings) => {
     updateSettings(data)
     toast({
       title: 'Configurações salvas!',
       description: 'Suas configurações foram atualizadas.',
     })
+  }
+
+  const onPasswordSubmit = async (data: z.infer<typeof passwordSchema>) => {
+    const { error } = await updatePassword(data.newPassword)
+    if (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao alterar senha',
+        description: error.message,
+      })
+    } else {
+      toast({ title: 'Senha alterada com sucesso!' })
+      passwordForm.reset({ newPassword: '', confirmPassword: '' })
+    }
   }
 
   const handleRuleToggle = (ruleId: string, enabled: boolean) => {
@@ -66,8 +103,58 @@ const AdminSettings = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Configurações</h1>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Alterar Senha</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...passwordForm}>
+            <form
+              onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={passwordForm.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nova Senha</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={passwordForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirmar Nova Senha</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                disabled={passwordForm.formState.isSubmitting}
+              >
+                Salvar Nova Senha
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      <Form {...settingsForm}>
+        <form
+          onSubmit={settingsForm.handleSubmit(onSettingsSubmit)}
+          className="space-y-8"
+        >
           <Card>
             <CardHeader>
               <CardTitle>Segurança</CardTitle>
@@ -146,7 +233,7 @@ const AdminSettings = () => {
             </CardHeader>
             <CardContent>
               <FormField
-                control={form.control}
+                control={settingsForm.control}
                 name="recommendationAlgorithm"
                 render={({ field }) => (
                   <FormItem>

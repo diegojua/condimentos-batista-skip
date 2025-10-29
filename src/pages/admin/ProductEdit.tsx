@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -14,7 +15,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from '@/hooks/use-toast'
-import { mockProducts, mockCategories } from '@/lib/mock-data'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -24,6 +24,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ProductVariationsForm } from '@/components/admin/ProductVariationsForm'
+import {
+  getProductById,
+  createProduct,
+  updateProduct,
+} from '@/services/products'
+import { getCategories } from '@/services/categories'
+import { Category, Product } from '@/types'
 
 const productSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
@@ -42,11 +49,11 @@ const AdminProductEdit = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const isEditing = Boolean(id)
-  const product = isEditing ? mockProducts.find((p) => p.id === id) : null
+  const [categories, setCategories] = useState<Category[]>([])
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
-    defaultValues: product || {
+    defaultValues: {
       name: '',
       description: '',
       price: 0,
@@ -58,15 +65,46 @@ const AdminProductEdit = () => {
     },
   })
 
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      const cats = await getCategories()
+      setCategories(cats)
+
+      if (isEditing && id) {
+        const product = await getProductById(Number(id))
+        if (product) {
+          form.reset(product as unknown as z.infer<typeof productSchema>)
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Produto não encontrado',
+          })
+          navigate('/admin/products')
+        }
+      }
+    }
+    fetchInitialData()
+  }, [id, isEditing, form, navigate])
+
   const productType = form.watch('type')
 
-  function onSubmit(values: z.infer<typeof productSchema>) {
-    console.log(values)
-    toast({
-      title: `Produto ${isEditing ? 'atualizado' : 'criado'}!`,
-      description: `O produto "${values.name}" foi salvo com sucesso.`,
-    })
-    navigate('/admin/products')
+  async function onSubmit(values: z.infer<typeof productSchema>) {
+    try {
+      if (isEditing && id) {
+        await updateProduct(Number(id), values as Partial<Product>)
+      } else {
+        await createProduct(values as Partial<Product>)
+      }
+      toast({
+        title: `Produto ${isEditing ? 'atualizado' : 'criado'}!`,
+      })
+      navigate('/admin/products')
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao salvar produto',
+      })
+    }
   }
 
   return (
@@ -88,7 +126,7 @@ const AdminProductEdit = () => {
                   <FormItem>
                     <FormLabel>Nome do Produto</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Pimenta Calabresa" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -101,10 +139,7 @@ const AdminProductEdit = () => {
                   <FormItem>
                     <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Descreva o produto..."
-                        {...field}
-                      />
+                      <Textarea {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,7 +157,7 @@ const AdminProductEdit = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo" />
+                          <SelectValue />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -180,7 +215,7 @@ const AdminProductEdit = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockCategories.map((cat) => (
+                        {categories.map((cat) => (
                           <SelectItem key={cat.id} value={cat.id}>
                             {cat.name}
                           </SelectItem>
@@ -196,7 +231,11 @@ const AdminProductEdit = () => {
           {productType === 'variable' && (
             <ProductVariationsForm control={form.control} />
           )}
-          <Button type="submit" className="btn-primary">
+          <Button
+            type="submit"
+            className="btn-primary"
+            disabled={form.formState.isSubmitting}
+          >
             Salvar Produto
           </Button>
         </form>

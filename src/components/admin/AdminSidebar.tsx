@@ -17,6 +17,8 @@ import {
   Megaphone,
   Store,
   LifeBuoy,
+  Folder,
+  SlidersHorizontal,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -32,6 +34,11 @@ const menuItems = [
     icon: Package,
   },
   {
+    href: '/admin/categories',
+    label: 'Categorias',
+    icon: Folder,
+  },
+  {
     href: '/admin/orders',
     label: 'Pedidos',
     icon: ShoppingCart,
@@ -39,6 +46,11 @@ const menuItems = [
   {
     href: '/admin/customers',
     label: 'Clientes',
+    icon: Users,
+  },
+  {
+    href: '/admin/users',
+    label: 'Usuários',
     icon: Users,
   },
   {
@@ -60,6 +72,11 @@ const menuItems = [
     href: '/admin/support',
     label: 'Suporte',
     icon: LifeBuoy,
+  },
+  {
+    href: '/admin/configurations',
+    label: 'Configurações Sist.',
+    icon: SlidersHorizontal,
   },
   {
     href: '/admin/settings',
@@ -84,7 +101,6 @@ export const AdminSidebar = () => {
                 asChild
                 className={cn(
                   location.pathname.startsWith(item.href) &&
-                    item.href !== '/admin' &&
                     'bg-primary text-primary-foreground hover:bg-primary-hover hover:text-primary-foreground',
                 )}
               >

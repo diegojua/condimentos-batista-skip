@@ -28,13 +28,17 @@ import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminProductEdit from './pages/admin/ProductEdit'
+import AdminCategories from './pages/admin/Categories'
+import AdminCategoryEdit from './pages/admin/CategoryEdit'
 import AdminOrders from './pages/admin/Orders'
 import AdminCustomers from './pages/admin/Customers'
+import AdminUsers from './pages/admin/Users'
 import AdminPromotions from './pages/admin/Promotions'
 import AdminPromotionEdit from './pages/admin/PromotionEdit'
 import AdminMarketing from './pages/admin/Marketing'
 import AdminCampaignEdit from './pages/admin/CampaignEdit'
 import AdminSettings from './pages/admin/Settings'
+import AdminConfigurations from './pages/admin/Configurations'
 import AdminMarketplace from './pages/admin/Marketplace'
 import AdminSupport from './pages/admin/Support'
 import NotFound from './pages/NotFound'
@@ -99,11 +103,24 @@ const App = () => (
                         path="/admin/products/edit/:id"
                         element={<AdminProductEdit />}
                       />
+                      <Route
+                        path="/admin/categories"
+                        element={<AdminCategories />}
+                      />
+                      <Route
+                        path="/admin/categories/new"
+                        element={<AdminCategoryEdit />}
+                      />
+                      <Route
+                        path="/admin/categories/edit/:id"
+                        element={<AdminCategoryEdit />}
+                      />
                       <Route path="/admin/orders" element={<AdminOrders />} />
                       <Route
                         path="/admin/customers"
                         element={<AdminCustomers />}
                       />
+                      <Route path="/admin/users" element={<AdminUsers />} />
                       <Route
                         path="/admin/promotions"
                         element={<AdminPromotions />}
@@ -133,6 +150,10 @@ const App = () => (
                         element={<AdminMarketplace />}
                       />
                       <Route path="/admin/support" element={<AdminSupport />} />
+                      <Route
+                        path="/admin/configurations"
+                        element={<AdminConfigurations />}
+                      />
                       <Route
                         path="/admin/settings"
                         element={<AdminSettings />}

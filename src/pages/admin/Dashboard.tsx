@@ -1,21 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from '@/components/ui/card'
 import {
   DollarSign,
   ShoppingCart,
-  Activity,
   Users,
+  Folder,
   TrendingUp,
   UserX,
-  PartyPopper,
-  CheckCircle,
 } from 'lucide-react'
 import {
   LineChart,
@@ -30,7 +27,6 @@ import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { DateRangePicker } from '@/components/admin/DateRangePicker'
 import { mockPredictiveData } from '@/lib/mock-data'
 import { StatCard } from '@/components/admin/StatCard'
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -39,7 +35,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { useToast } from '@/hooks/use-toast'
+import { getDashboardStats } from '@/services/dashboard'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const salesData = [
   { month: 'Jan', Vendas: 4250 },
@@ -55,105 +52,64 @@ const salesData = [
 ]
 
 const AdminDashboard = () => {
-  const [showConclusion, setShowConclusion] = useState(true)
-  const { toast } = useToast()
-
-  const conclusionDate = new Date().toLocaleDateString('pt-BR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  const [stats, setStats] = useState({
+    productCount: 0,
+    categoryCount: 0,
+    userCount: 0,
   })
+  const [loading, setLoading] = useState(true)
 
-  const features = [
-    'Programa de Fidelidade Avançado',
-    'Expansão para Novos Canais de Venda (Pedidos via WhatsApp)',
-    'Ferramentas de Análise Preditiva (Dashboard)',
-    'Personalização em Tempo Real (Banners Dinâmicos)',
-    'Integração com Marketplaces',
-    'Melhorias na Experiência do Usuário (UX)',
-    'Ferramentas de Marketing Avançadas (Email e Afiliados)',
-    'Otimização de Performance',
-  ]
-
-  const handleAcknowledge = () => {
-    setShowConclusion(false)
-    toast({
-      title: 'Projeto Formalmente Concluído!',
-      description: 'Obrigado por confirmar a entrega. O projeto foi arquivado.',
-    })
-  }
+  useEffect(() => {
+    const fetchStats = async () => {
+      const data = await getDashboardStats()
+      setStats(data)
+      setLoading(false)
+    }
+    fetchStats()
+  }, [])
 
   return (
     <div className="flex-1 space-y-6">
-      {showConclusion && (
-        <Card className="mb-6 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
-          <CardHeader className="flex flex-row items-center gap-4">
-            <PartyPopper className="h-8 w-8 text-green-600 dark:text-green-400" />
-            <div>
-              <CardTitle className="text-green-800 dark:text-green-200">
-                Projeto Concluído!
-              </CardTitle>
-              <CardDescription className="text-green-700 dark:text-green-300">
-                A implementação do projeto Condimentos Batista foi finalizada
-                com sucesso em {conclusionDate}.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="font-semibold mb-4 text-green-800 dark:text-green-200">
-              Todas as funcionalidades acordadas foram entregues, incluindo:
-            </p>
-            <ul className="space-y-2">
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                  <span className="text-green-700 dark:text-green-300">
-                    {feature}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter className="flex justify-end">
-            <Button
-              onClick={handleAcknowledge}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Confirmar Entrega e Arquivar Projeto
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <DateRangePicker />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Vendas Totais"
-          value="R$ 45.231,89"
-          description="+20.1% do último mês"
-          Icon={DollarSign}
-        />
-        <StatCard
-          title="Pedidos"
-          value="+2350"
-          description="+180.1% do último mês"
-          Icon={ShoppingCart}
-        />
-        <StatCard
-          title="Taxa de Conversão"
-          value="3.45%"
-          description="+2.5% do último mês"
-          Icon={Activity}
-        />
-        <StatCard
-          title="Novos Clientes"
-          value="+573"
-          description="+20 desde a última hora"
-          Icon={Users}
-        />
+        {loading ? (
+          <>
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              title="Produtos Totais"
+              value={String(stats.productCount)}
+              description="Produtos cadastrados"
+              Icon={ShoppingCart}
+            />
+            <StatCard
+              title="Categorias Totais"
+              value={String(stats.categoryCount)}
+              description="Categorias de produtos"
+              Icon={Folder}
+            />
+            <StatCard
+              title="Perfis de Usuário"
+              value={String(stats.userCount)}
+              description="Usuários registrados"
+              Icon={Users}
+            />
+            <StatCard
+              title="Vendas (Exemplo)"
+              value="R$ 45.231,89"
+              description="+20.1% do último mês"
+              Icon={DollarSign}
+            />
+          </>
+        )}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
