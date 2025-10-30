@@ -20,6 +20,9 @@ export const Header = () => {
   const { cartCount } = useCart()
   const { points } = useLoyalty()
 
+  // Segurança: use um fallback caso cartCount seja undefined para evitar crashes ao renderizar
+  const safeCartCount = cartCount ?? 0
+
   const navLinks = [
     { name: 'Início', path: '/' },
     { name: 'Produtos', path: '/produtos' },
@@ -75,39 +78,29 @@ export const Header = () => {
           <Link to="/carrinho">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-6 w-6" />
-              {cartCount > 0 && (
+              {safeCartCount > 0 && (
                 <Badge
                   variant="destructive"
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full flex items-center justify-center text-xs"
+                  className="absolute -top-1 -right-1"
                 >
-                  {cartCount}
+                  {safeCartCount}
                 </Badge>
               )}
             </Button>
           </Link>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
                 <User className="h-6 w-6" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link
-                  to="/fidelidade"
-                  className="flex justify-between w-full cursor-pointer"
-                >
-                  <span>Fidelidade</span>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />{' '}
-                    {points}
-                  </span>
-                </Link>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                Perfil
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/admin/login" className="cursor-pointer">
-                  Área Administrativa
-                </Link>
+              <DropdownMenuItem>
+                Pedidos
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
