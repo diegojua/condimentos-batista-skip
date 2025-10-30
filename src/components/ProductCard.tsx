@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/card'
 import { Product } from '@/types'
 import { useCart } from '@/contexts/CartContext'
-import { Badge } from '@/components/ui/badge'
 
 interface ProductCardProps {
   product: Product

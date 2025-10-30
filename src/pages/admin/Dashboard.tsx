@@ -137,7 +137,7 @@ const AdminDashboard = () => {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `R$${value / 1000}k`}
+                    tickFormatter={(value) => `R${value / 1000}k`}
                   />
                   <Tooltip content={<ChartTooltipContent />} />
                   <Legend />
