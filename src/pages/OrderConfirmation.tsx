@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
 import { useLoyalty } from '@/contexts/LoyaltyContext'
 import { useSettings } from '@/contexts/SettingsContext'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { CheckoutProgress } from '@/components/CheckoutProgress'
 
 const OrderConfirmation = () => {
@@ -16,14 +16,16 @@ const OrderConfirmation = () => {
   const { addPoints } = useLoyalty()
   const { settings } = useSettings()
 
-  const pointsEarned = Math.floor(orderTotal * settings.loyalty.pointsPerDollar)
+  const pointsEarned = useMemo(
+    () => Math.floor(orderTotal * settings.loyalty.pointsPerDollar),
+    [orderTotal, settings.loyalty.pointsPerDollar],
+  )
 
   useEffect(() => {
     if (pointsEarned > 0) {
       addPoints(pointsEarned)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [addPoints, pointsEarned])
 
   return (
     <div className="container py-16 flex flex-col items-center justify-center">

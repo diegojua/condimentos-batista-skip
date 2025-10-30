@@ -36,47 +36,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Set up the listener first to catch all auth events
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoading(true)
       setSession(session)
-      const currentUser = session?.user ?? null
-      setUser(currentUser)
-      if (currentUser) {
-        getUserProfile(currentUser.id).then((userProfile) => {
-          setProfile(userProfile)
-          setLoading(false)
-        })
-      } else {
-        setProfile(null)
-        setLoading(false)
-      }
+      setUser(session?.user ?? null)
     })
 
-    // Then, get the initial session to check if the user is already logged in
     setLoading(true)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      const currentUser = session?.user ?? null
-      setUser(currentUser)
-      if (currentUser) {
-        getUserProfile(currentUser.id).then((userProfile) => {
-          setProfile(userProfile)
-          setLoading(false)
-        })
-      } else {
-        setProfile(null)
-        setLoading(false)
-      }
+      setUser(session?.user ?? null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
+  useEffect(() => {
+    if (user) {
+      setLoading(true)
+      getUserProfile(user.id)
+        .then((userProfile) => {
+          setProfile(userProfile)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    } else {
+      setProfile(null)
+      setLoading(false)
+    }
+  }, [user])
+
   const signIn = async (email: string, password: string) => {
-    // onAuthStateChange will handle the loading state and profile fetching
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -85,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const signOut = async () => {
-    // onAuthStateChange will handle the loading state and profile fetching
     const { error } = await supabase.auth.signOut()
     return { error }
   }

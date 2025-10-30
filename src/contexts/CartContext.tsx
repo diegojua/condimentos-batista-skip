@@ -1,12 +1,19 @@
-import { createContext, useContext, useState, ReactNode, useMemo } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from 'react'
 import { CartItem, Product } from '@/types'
 import { toast } from '@/hooks/use-toast'
 
 interface CartContextType {
   cartItems: CartItem[]
   addToCart: (product: Product, quantity: number) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeFromCart: (productId: number) => void
+  updateQuantity: (productId: number, quantity: number) => void
   clearCart: () => void
   cartCount: number
   cartTotal: number
@@ -17,7 +24,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
-  const addToCart = (product: Product, quantity: number) => {
+  const addToCart = useCallback((product: Product, quantity: number) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id)
       if (existingItem) {
@@ -33,9 +40,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       title: 'Produto adicionado!',
       description: `${product.name} foi adicionado ao seu carrinho.`,
     })
-  }
+  }, [])
 
-  const removeFromCart = (productId: string) => {
+  const removeFromCart = useCallback((productId: number) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.id !== productId),
     )
@@ -44,23 +51,26 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       description: 'O produto foi removido do seu carrinho.',
       variant: 'destructive',
     })
-  }
+  }, [])
 
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId)
-    } else {
-      setCartItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === productId ? { ...item, quantity } : item,
-        ),
-      )
-    }
-  }
+  const updateQuantity = useCallback(
+    (productId: number, quantity: number) => {
+      if (quantity <= 0) {
+        removeFromCart(productId)
+      } else {
+        setCartItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === productId ? { ...item, quantity } : item,
+          ),
+        )
+      }
+    },
+    [removeFromCart],
+  )
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCartItems([])
-  }
+  }, [])
 
   const cartCount = useMemo(() => {
     return cartItems.reduce((count, item) => count + item.quantity, 0)
@@ -83,7 +93,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       cartCount,
       cartTotal,
     }),
-    [cartItems, cartCount, cartTotal],
+    [
+      cartItems,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      cartCount,
+      cartTotal,
+    ],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
